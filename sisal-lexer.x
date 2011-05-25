@@ -1,5 +1,8 @@
 {
-module Main (main) where
+module Main (main, isDigit, digitToInt) where
+import Data.List.Split (splitOn) -- from split package
+import Char (ord)
+import Numeric (readInt)
 }
 
 %wrapper "basic"
@@ -13,8 +16,8 @@ tokens :-
        "%".*                    ;       -- comment
 
        -- constants
-       $digit+ "#" $alphaNum+   { \s -> TBaseIntVal s }
-       $digit+                  { \s -> TIntVal (read s) }
+       $digit+ "#" $alphaNum+   { \s -> let (a, b) = (readHashedInt s) in TIntVal a b }
+       $digit+                  { \s -> TIntVal (read s) True }
        "="                      { \s -> TAssign }
        "."                      { \s -> TPoint }
        ","                      { \s -> TComma }
@@ -60,10 +63,32 @@ tokens :-
        "integer"                { \s -> TInteger }
        "interface"              { \s -> TInterface }
        "is"                     { \s -> TIs }
+
 {
+--
+-- Some functions to parse hashed integer: 16#CAFE, 2#100110
+--
+
+-- helper function for Numeric.readInt
+isDigit :: Int -> Char -> Bool
+isDigit base char = 0 <= v && v < base
+        where v = digitToInt base char
+
+-- helper function for Numeric.readInt
+digitToInt :: Int -> Char -> Int
+digitToInt base char | '0' <= char && char <= '9' = ord(char) - ord('0')
+                     | 'a' <= char && char <= 'z' = ord(char) - ord('a') + 10
+                     | 'A' <= char && char <= 'Z' = ord(char) - ord('A') + 10
+                     | True = -1
+
+-- Function that parses hashed integer
+readHashedInt :: String -> (Integer, Bool)
+readHashedInt s = (toInteger n, tail == [])
+              where [base, num] = splitOn "#" s
+                    base' = (read base)
+                    [(n, tail)] = readInt base' (isDigit base') (digitToInt base') num
 data Token =
-           TIntVal  Integer |
-           TBaseIntVal String |
+           TIntVal  Integer Bool |
            TFloatVal String |
            TChar     Char   |
            TIdent    String |
