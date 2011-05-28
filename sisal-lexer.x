@@ -1,7 +1,7 @@
 {
 module Main (main, isDigit, digitToInt) where
 import Data.List.Split (splitOn) -- from split package
-import Char (ord)
+import Char (ord, isDigit, isLower, isUpper)
 import Numeric (readInt)
 }
 
@@ -70,15 +70,18 @@ tokens :-
 --
 
 -- helper function for Numeric.readInt
-isDigit :: Int -> Char -> Bool
-isDigit base char = 0 <= v && v < base
+isBaseDigit :: Int -> Char -> Bool
+isBaseDigit base char = 0 <= v && v < base
         where v = digitToInt base char
 
 -- helper function for Numeric.readInt
 digitToInt :: Int -> Char -> Int
-digitToInt base char | '0' <= char && char <= '9' = ord(char) - ord('0')
-                     | 'a' <= char && char <= 'z' = ord(char) - ord('a') + 10
-                     | 'A' <= char && char <= 'Z' = ord(char) - ord('A') + 10
+digitToInt base char | isDigit char = ord(char) - ord('0')
+                     -- isLower and isUpper return True on some other
+                     -- char (cyrillic letters, e.g.), but lexer gives us
+                     -- only latin chars anyway.
+                     | isLower char = ord(char) - ord('a') + 10
+                     | isUpper char = ord(char) - ord('A') + 10
                      | True = -1
 
 -- Function that parses hashed integer
@@ -86,7 +89,7 @@ readHashedInt :: String -> (Integer, Bool)
 readHashedInt s = (toInteger n, tail == [])
               where [base, num] = splitOn "#" s
                     base' = (read base)
-                    [(n, tail)] = readInt base' (isDigit base') (digitToInt base') num
+                    [(n, tail)] = readInt base' (isBaseDigit base') (digitToInt base') num
 data Token =
            TIntVal  Integer Bool |
            TFloatVal String |
