@@ -1,5 +1,5 @@
 {
-module Main (main, isDigit, digitToInt) where
+module Main (main) where
 import Char (ord, isDigit, isLower, isUpper)
 import Numeric (readInt)
 }
