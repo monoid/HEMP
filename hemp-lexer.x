@@ -17,6 +17,10 @@ tokens :-
        -- constants
        $digit+ "#" $alphaNum+   { \s -> let (a, b) = (readHashedInt s) in TIntVal a b }
        $digit+                  { \s -> TIntVal (read s) True }
+       \" ([^\"]|\\.)+ \"       { \s -> TString ((init . tail) s) }
+       '[^']'                   { \s -> TChar (s!!1) }  -- ordinary chars
+       '\\.'                    { \s -> TEChar (s!!2) } -- '\n' etc
+       -- keywords
        ":="                     { \s -> TAssign }
        "="                      { \s -> TEqual }
        "."                      { \s -> TPoint }
@@ -124,7 +128,9 @@ readHashedInt s = (toInteger n, t == [])
 data Token =
            TIntVal  Integer Bool |
            TFloatVal String |
+           TString   String |
            TChar     Char   |
+           TEChar    Char   |
            TIdent    String |
            TAssign          |
            TPoint           |
