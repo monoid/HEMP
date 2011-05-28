@@ -1,6 +1,5 @@
 {
 module Main (main, isDigit, digitToInt) where
-import Data.List.Split (splitOn) -- from split package
 import Char (ord, isDigit, isLower, isUpper)
 import Numeric (readInt)
 }
@@ -86,10 +85,11 @@ digitToInt base char | isDigit char = ord(char) - ord('0')
 
 -- Function that parses hashed integer
 readHashedInt :: String -> (Integer, Bool)
-readHashedInt s = (toInteger n, tail == [])
-              where [base, num] = splitOn "#" s
+readHashedInt s = (toInteger n, t == [])
+              where (base, hnum) = break (=='#') s
                     base' = (read base)
-                    [(n, tail)] = readInt base' (isBaseDigit base') (digitToInt base') num
+                    [(n, t)] = readInt base' (isBaseDigit base') (digitToInt base') (tail hnum)
+
 data Token =
            TIntVal  Integer Bool |
            TFloatVal String |
