@@ -112,7 +112,7 @@ digitToInt base char | isDigit char = ord(char) - ord('0')
                      -- only latin chars anyway.
                      | isLower char = ord(char) - ord('a') + 10
                      | isUpper char = ord(char) - ord('A') + 10
-                     | True = -1
+                     | otherwise = -1
 
 -- Function that parses hashed integer
 readHashedInt :: String -> (Integer, Bool)
