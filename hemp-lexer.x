@@ -10,12 +10,17 @@ $digit = 0-9            -- digits
 $alpha = [a-zA-Z_]      -- alphabetic
 $alphaNum = [a-zA-Z0-9]
 
+@mantissa = (\.$digit*)
+@exponent = ([edED][\+\-]?$digit+)
+
 tokens :-
        $white+                  ;       -- whitespace
        "%".*                    ;       -- comment
 
        -- constants
        $digit+ "#" $alphaNum+   { \s -> let (a, b) = (readHashedInt s) in TIntVal a b }
+       $digit+(@mantissa|@exponent|@mantissa@exponent)
+                                { \s -> TFloatVal s }
        $digit+                  { \s -> TIntVal (read s) True }
        \" ([^\"]|\\.)+ \"       { \s -> TString ((init . tail) s) }
        '[^']'                   { \s -> TChar (s!!1) }  -- ordinary chars
