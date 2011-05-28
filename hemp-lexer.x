@@ -17,7 +17,8 @@ tokens :-
        -- constants
        $digit+ "#" $alphaNum+   { \s -> let (a, b) = (readHashedInt s) in TIntVal a b }
        $digit+                  { \s -> TIntVal (read s) True }
-       "="                      { \s -> TAssign }
+       ":="                     { \s -> TAssign }
+       "="                      { \s -> TEqual }
        "."                      { \s -> TPoint }
        ","                      { \s -> TComma }
        ":"                      { \s -> TColon }
@@ -62,6 +63,36 @@ tokens :-
        "integer"                { \s -> TInteger }
        "interface"              { \s -> TInterface }
        "is"                     { \s -> TIs }
+       "let"                    { \s -> TLet }
+       "module"                 { \s -> TModule }
+       "nil"                    { \s -> TNil }
+       "null"                   { \s -> TNull }
+       "of"                     { \s -> TOf }
+       "otherwise"              { \s -> TOtherwise }
+       "out"                    { \s -> TOut }
+       "program"                { \s -> TProgram }
+       "real"                   { \s -> TReal }
+       "record"                 { \s -> TRecord }
+       "returns"                { \s -> TReturns }
+       "state"                  { \s -> TState }
+       "stream"                 { \s -> TStream }
+       "suffix"                 { \s -> TSuffix }
+       "then"                   { \s -> TThen }
+       "to"                     { \s -> TTo }
+       "true"                   { \s -> TTrue }
+       "type"                   { \s -> TType }
+       "when"                   { \s -> TWhen }
+       "while"                  { \s -> TWhile }
+       "union"                  { \s -> TUnion }
+       "unless"                 { \s -> TUnless }
+       "until"                  { \s -> TUntil }
+       "initial"                { \s -> TInitial }
+       "old"                    { \s -> TOld }
+       "value"                  { \s -> TValue }
+       "define"                 { \s -> TDefine }
+       "_"                      { \s -> TUnderscore }
+       -- variable
+       $alpha $alphaNum*        { \s -> TIdent s }
 
 {
 --
