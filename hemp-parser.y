@@ -102,8 +102,8 @@ TopDeclarationList:
         | TopDeclarationList FunctionOrTypeDef { $2:$1 }
 
 FunctionOrTypeDef:
-        FunctionDecl { GFunction $1 }
-        | TypeDecl   { GTypeDef $1 }
+        FunctionDecl { $1 }
+        | TypeDecl   { $1 }
 
 FunctionDecl:
         function identifier "("  ")" begin end ";" { GFunctionDeclration $2 [] [] }
@@ -115,12 +115,10 @@ TypeDecl:
 parseError :: [Token] -> a
 parseError _ = error "Parse error"
 
-data FunctionOrTypeDef = GFunction GFunctionDeclration
-                       | GTypeDef GTypeDeclaration deriving (Show, Eq)
+data GDeclration = GFunctionDeclration String [Argument] [Expression]
+                 | GTypeDeclaration String Token
+                 deriving (Show, Eq)
 
-data GFunctionDeclration = GFunctionDeclration String [Argument] [Expression]
-                         deriving (Show, Eq)
-data GTypeDeclaration = GTypeDeclaration String Token deriving (Show, Eq)
 data Argument = Argument String deriving (Show, Eq)
 data Expression = Constant Token deriving (Show, Eq)
 
