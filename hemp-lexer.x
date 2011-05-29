@@ -28,6 +28,7 @@ tokens :-
        -- keywords
        ":="                     { \s -> TAssign }
        "="                      { \s -> TEqual }
+       ".."                     { \s -> TPtPt }
        "."                      { \s -> TPoint }
        ","                      { \s -> TComma }
        ":"                      { \s -> TColon }
@@ -36,7 +37,8 @@ tokens :-
        "]"                      { \s -> TRighSqBr }
        "("                      { \s -> TLeftRoBr }
        ")"                      { \s -> TRighRoBr }
-       -- TODO TCmp
+       "<" | ">" | "~=" | "<=" | ">="
+                                { \s -> TCmp s }
        "+"                      { \s -> TPlus }
        "-"                      { \s -> TMinus }
        "**"                     { \s -> TExpt }
@@ -139,6 +141,7 @@ data Token =
            TEChar    Char   |
            TIdent    String |
            TAssign          |
+           TPtPt            |
            TPoint           |
            TComma           |
            TColon           |
