@@ -95,18 +95,18 @@ import HempLexer
 %%
 
 Program:
-        TopDeclarationList { $1 }
+        TopDeclarationList { reverse $1 }
 
 TopDeclarationList:
-        FunctionOrTypeDef { 0 }
-        | TopDeclarationList FunctionOrTypeDef { 0 }
+        FunctionOrTypeDef { [$1] }
+        | TopDeclarationList FunctionOrTypeDef { $2:$1 }
 
 FunctionOrTypeDef:
         FunctionDecl { GFunction $1 }
         | TypeDecl   { GTypeDef $1 }
 
 FunctionDecl:
-        function identifier "("  ")" begin end { GFunctionDeclration $2 [] [] }
+        function identifier "("  ")" begin end ";" { GFunctionDeclration $2 [] [] }
 
 TypeDecl:
         type identifier "=" integer ";" { GTypeDeclaration $2 $4 }
@@ -116,12 +116,13 @@ parseError :: [Token] -> a
 parseError _ = error "Parse error"
 
 data FunctionOrTypeDef = GFunction GFunctionDeclration
-                       | GTypeDef GTypeDeclaration
+                       | GTypeDef GTypeDeclaration deriving (Show, Eq)
 
 data GFunctionDeclration = GFunctionDeclration String [Argument] [Expression]
-data GTypeDeclaration = GTypeDeclaration String Token
-data Argument = Argument String
-data Expression = Constant Token
+                         deriving (Show, Eq)
+data GTypeDeclaration = GTypeDeclaration String Token deriving (Show, Eq)
+data Argument = Argument String deriving (Show, Eq)
+data Expression = Constant Token deriving (Show, Eq)
 
 main = do
      inStr <- getContents
