@@ -1,10 +1,14 @@
 ALEX_OPTS = --ghc
-GHC_OPTS = -dynamic -O2
+HAPPY_OPTS = -a -g -c
+GHC_OPTS = -dynamic -O2 -fglasgow-exts
 
-all: hemp-lexer
+all: hemp-parser
 
-hemp-lexer: hemp-lexer.hs
-	ghc --make $(GHC_OPTS) $<
+hemp-parser: hemp-parser.hs hemp-lexer.hs
+	ghc --make $(GHC_OPTS) $^
 
-hemp-lexer.hs: hemp-lexer.x
+hemp-lexer.hs: hemp-lexer.x Makefile
 	alex $(ALEX_OPTS) $<
+
+hemp-parser.hs: hemp-parser.y Makefile
+	happy $(HAPPY_OPTS) $<

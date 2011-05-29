@@ -1,5 +1,5 @@
 {
-module Main (main) where
+module HempLexer where
 import Char (ord, isDigit, isLower, isUpper)
 import Numeric (readInt)
 }
@@ -18,10 +18,10 @@ tokens :-
        "%".*                    ;       -- comment
 
        -- constants
-       $digit+ "#" $alphaNum+   { \s -> let (a, b) = (readHashedInt s) in TIntVal a b }
+       $digit+ "#" $alphaNum+   { \s -> TIntVal (readHashedInt s) }
        $digit+(@mantissa|@exponent|@mantissa@exponent)
                                 { \s -> TFloatVal s }
-       $digit+                  { \s -> TIntVal (read s) True }
+       $digit+                  { \s -> TIntVal ((read s), True) }
        \" ([^\"]|\\.)+ \"       { \s -> TString ((init . tail) s) }
        '[^']'                   { \s -> TChar (s!!1) }  -- ordinary chars
        '\\.'                    { \s -> TEChar (s!!2) } -- '\n' etc
@@ -59,6 +59,7 @@ tokens :-
        "double"                 { \s -> TDouble }
        "double_complex"         { \s -> TDoubleComplex }
        "else"                   { \s -> TElse }
+       "end"                    { \s -> TEnd }
        "false"                  { \s -> TFalse }
        "for"                    { \s -> TFor }
        "foreign"                { \s -> TForeign }
@@ -131,7 +132,7 @@ readHashedInt s = (toInteger n, t == [])
                     [(n, t)] = readInt base' (isBaseDigit base') (digitToInt base') (tail hnum)
 
 data Token =
-           TIntVal  Integer Bool |
+           TIntVal  (Integer, Bool) |
            TFloatVal String |
            TString   String |
            TChar     Char   |
@@ -146,7 +147,7 @@ data Token =
            TRighSqBr        |
            TLeftRoBr        |
            TRighRoBr        |
-           TCmp      String | -- Comparsion: <, >, =, <=, >=, ~=
+           TCmp      String | -- Comparsion: <, >, <=, >=, ~=
            TEqual           |
            TPlus            |
            TMinus           |
@@ -217,8 +218,4 @@ data Token =
            TDefine          |
            TUnderscore
            deriving (Eq, Show)
-
-main = do
-     s <- getContents
-     print (alexScanTokens s)
 }
