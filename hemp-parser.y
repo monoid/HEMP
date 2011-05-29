@@ -7,6 +7,14 @@ import HempLexer
 %tokentype { Token }
 %error { parseError }
 
+%nonassoc cmp "="
+%left "|"
+%left "&"
+%left "||"
+%left "+" "-"
+%left "*" "/"
+%left "**"
+
 %token
         int     { TIntVal $$ }
         float   { TFloatVal $$ }
@@ -189,6 +197,15 @@ Expression:
         | "~" Expression { Not $2 }
         | "+" Expression { $2 }
         | "-" Expression { Neg $2 }
+        | Expression "|" Expression { BinOp $2 $1 $3 }
+        | Expression "&" Expression { BinOp $2 $1 $3 }
+        | Expression "||" Expression { BinOp $2 $1 $3 }
+        | Expression "+" Expression { BinOp $2 $1 $3 }
+        | Expression "-" Expression { BinOp $2 $1 $3 }
+        | Expression "*" Expression { BinOp $2 $1 $3 }
+        | Expression "/" Expression { BinOp $2 $1 $3 }
+        | Expression cmp Expression { BinOp (TCmp $2) $1 $3 }
+        | Expression "**" Expression { BinOp $2 $1 $3 }
         | "(" Expression "," Expression ")" { Complex $2 $4 }
         | if Expression then ExpressionList else ExpressionList { IfThenElse $2 $4 $6 }
 
@@ -235,6 +252,7 @@ data Expression = Constant Token
                 | FunCall Expression [Expression]
                 | Not Expression
                 | Neg Expression
+                | BinOp Token Expression Expression
                 | Complex Expression Expression
                 | IfThenElse Expression [Expression] [Expression]
                 deriving (Show, Eq)
