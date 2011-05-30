@@ -14,6 +14,7 @@ import HempLexer
 %left "+" "-"
 %left "*" "/"
 %left "**"
+%left UNARY
 
 %token
         int     { TIntVal $$ }
@@ -194,9 +195,9 @@ Expression:
         | "(" Expression ")" { $2 }
         | Expression "[" Expression "]" { Aref $1 $3 }
         | Expression "(" ExpressionList ")" { FunCall $1 $3 }
-        | "~" Expression { Not $2 }
-        | "+" Expression { $2 }
-        | "-" Expression { Neg $2 }
+        | "~" Expression %prec UNARY { Not $2 }
+        | "+" Expression %prec UNARY { $2 }
+        | "-" Expression %prec UNARY { Neg $2 }
         | Expression "|" Expression { BinOp $2 $1 $3 }
         | Expression "&" Expression { BinOp $2 $1 $3 }
         | Expression "||" Expression { BinOp $2 $1 $3 }
