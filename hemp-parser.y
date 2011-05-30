@@ -14,6 +14,8 @@ import HempLexer
 %left "+" "-"
 %left "*" "/"
 %left "**"
+%left "[" "("
+%left "."
 %left UNARY
 
 %token
@@ -190,14 +192,18 @@ ExpressionList:
         | ExpressionList "," Expression { $1 ++ [$3] }
 
 Expression:
-        Constant { Constant $1 }
-        | identifier { Identifier $1 }
-        | "(" Expression ")" { $2 }
-        | Expression "[" Expression "]" { Aref $1 $3 }
-        | Expression "(" ExpressionList ")" { FunCall $1 $3 }
+        PrimaryExpression { $1 }
         | "~" Expression %prec UNARY { Not $2 }
         | "+" Expression %prec UNARY { $2 }
         | "-" Expression %prec UNARY { Neg $2 }
+
+PrimaryExpression:
+        Constant { Constant $1 }
+        | identifier { Identifier $1 }
+        | "(" Expression ")" { $2 }
+        | Expression "." identifier { RecordAccess $1 $2 }
+        | Expression "[" ExpressionList "]" { Aref $1 $3 }
+        | Expression "(" ExpressionList ")" { FunCall $1 $3 }
         | Expression "|" Expression { BinOp $2 $1 $3 }
         | Expression "&" Expression { BinOp $2 $1 $3 }
         | Expression "||" Expression { BinOp $2 $1 $3 }
@@ -206,9 +212,11 @@ Expression:
         | Expression "*" Expression { BinOp $2 $1 $3 }
         | Expression "/" Expression { BinOp $2 $1 $3 }
         | Expression cmp Expression { BinOp (TCmp $2) $1 $3 }
+        | Expression "=" Expression { BinOp $2 $1 $3 }
         | Expression "**" Expression { BinOp $2 $1 $3 }
         | "(" Expression "," Expression ")" { Complex $2 $4 }
-        | if Expression then ExpressionList else ExpressionList { IfThenElse $2 $4 $6 }
+        | if Expression then ExpressionList else ExpressionList end if { IfThenElse $2 $4 $6 }
+
 
 Constant:
         int { TIntVal $1 }
@@ -249,7 +257,8 @@ data Type = NamedType String
 
 data Expression = Constant Token
                 | Identifier String
-                | Aref Expression Expression
+                | Aref Expression [Expression]
+                | RecordAccess Expression Token
                 | FunCall Expression [Expression]
                 | Not Expression
                 | Neg Expression
