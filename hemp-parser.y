@@ -200,6 +200,8 @@ Expression:
         | "+" Expression %prec UNARY { $2 }
         | "-" Expression %prec UNARY { Neg $2 }
         | Expression "." identifier { RecordAccess $1 $2 }
+        -- TODO: array/stream access contains not just Expression List,
+        -- but it may contain ranges...
         | Expression "[" ExpressionList "]" { Aref $1 $3 }
         | Expression "(" ExpressionList ")" { FunCall $1 $3 }
         | Expression "|" Expression { BinOp $2 $1 $3 }
