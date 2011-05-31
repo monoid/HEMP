@@ -215,8 +215,13 @@ PrimaryExpression:
         | Expression "=" Expression { BinOp $2 $1 $3 }
         | Expression "**" Expression { BinOp $2 $1 $3 }
         | "(" Expression "," Expression ")" { Complex $2 $4 }
-        | if Expression then ExpressionList else ExpressionList end if { IfThenElse $2 $4 $6 }
+        | if IfConditions else ExpressionList end if { IfThenElse $2 $4 }
 
+IfConditions:
+        IfCondition { [$1] }
+        | IfConditions elseif IfCondition { $1 ++ [$3] }
+IfCondition:
+        Expression then ExpressionList { ($1, $3) }
 
 Constant:
         int { TIntVal $1 }
@@ -264,7 +269,8 @@ data Expression = Constant Token
                 | Neg Expression
                 | BinOp Token Expression Expression
                 | Complex Expression Expression
-                | IfThenElse Expression [Expression] [Expression]
+                -- List of if/elseif conds and exps, and then else exps
+                | IfThenElse [(Expression, [Expression])] [Expression]
                 deriving (Show, Eq)
 
 main = do
