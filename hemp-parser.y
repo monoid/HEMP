@@ -7,13 +7,13 @@ import HempLexer
 %tokentype { Token }
 %error { parseError }
 
-%nonassoc cmp "="
+%left "||"
 %left "|"
 %left "&"
-%left "||"
+%nonassoc cmp "="
 %left "+" "-"
 %left "*" "/"
-%left "**"
+%right "**"
 %left "[" "("
 %left "."
 %left UNARY
