@@ -61,6 +61,7 @@ tokens :-
        "double"                 { \s -> TDouble }
        "double_complex"         { \s -> TDoubleComplex }
        "else"                   { \s -> TElse }
+       "elseif"                 { \s -> TElseIf }
        "end"                    { \s -> TEnd }
        "false"                  { \s -> TFalse }
        "for"                    { \s -> TFor }
