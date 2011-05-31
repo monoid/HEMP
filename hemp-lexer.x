@@ -1,4 +1,4 @@
-{
+{ -- -*- mode: haskell -*-
 module HempLexer where
 import Char (ord, isDigit, isLower, isUpper)
 import Numeric (readInt)

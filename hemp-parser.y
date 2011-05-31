@@ -1,4 +1,4 @@
-{
+{ -- -*- mode: haskell -*-
 module Main where
 import HempLexer
 }
