@@ -213,7 +213,11 @@ Expression:
         | Expression "=" Expression { BinOp $2 $1 $3 }
         | Expression "**" Expression { BinOp $2 $1 $3 }
         | "(" Expression "," Expression ")" { Complex $2 $4 }
-        | if IfConditions else ExpressionList end if { IfThenElse $2 $4 }
+        | CompaundExpression { $1 }
+
+-- Just to keep Expression rule managable, we introduce CompaundExpression
+CompaundExpression:
+        if IfConditions else ExpressionList end if { IfThenElse $2 $4 }
 
 IfConditions:
         IfCondition { [$1] }
