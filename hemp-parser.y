@@ -192,16 +192,13 @@ ExpressionList:
         | ExpressionList "," Expression { $1 ++ [$3] }
 
 Expression:
-        PrimaryExpression { $1 }
+        Constant { Constant $1 }
+        | identifier { Identifier $1 }
+        | "(" Expression ")" { $2 }
         | old Expression %prec UNARY { Old $2 }
         | "~" Expression %prec UNARY { Not $2 }
         | "+" Expression %prec UNARY { $2 }
         | "-" Expression %prec UNARY { Neg $2 }
-
-PrimaryExpression:
-        Constant { Constant $1 }
-        | identifier { Identifier $1 }
-        | "(" Expression ")" { $2 }
         | Expression "." identifier { RecordAccess $1 $2 }
         | Expression "[" ExpressionList "]" { Aref $1 $3 }
         | Expression "(" ExpressionList ")" { FunCall $1 $3 }
