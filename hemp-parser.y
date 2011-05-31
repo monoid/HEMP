@@ -193,6 +193,7 @@ ExpressionList:
 
 Expression:
         PrimaryExpression { $1 }
+        | old Expression %prec UNARY { Old $2 }
         | "~" Expression %prec UNARY { Not $2 }
         | "+" Expression %prec UNARY { $2 }
         | "-" Expression %prec UNARY { Neg $2 }
@@ -269,6 +270,7 @@ data Expression = Constant Token
                 | Neg Expression
                 | BinOp Token Expression Expression
                 | Complex Expression Expression
+                | Old Expression
                 -- List of if/elseif conds and exps, and then else exps
                 | IfThenElse [(Expression, [Expression])] [Expression]
                 deriving (Show, Eq)
