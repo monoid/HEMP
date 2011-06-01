@@ -25,7 +25,7 @@ import HempLexer
         char    { TChar $$ }
         echar   { TEChar $$ }
         identifier { TIdent $$ }
-        assign     { TAssign }
+        ":="       { TAssign }
         ".."       { TPtPt }
         "."        { TPoint }
         ","        { TComma }
@@ -220,6 +220,16 @@ Expression:
 -- Just to keep Expression rule managable, we introduce CompaundExpression
 CompaundExpression:
         if IfConditions else ExpressionList end if { IfThenElse $2 $4 }
+        | let ListOfAssignments MayBeSemicolon in ExpressionList end let { Let $2 $5 }
+
+ListOfAssignments:
+        Assignment { [$1] }
+        | ListOfAssignments ";" Assignment { $1 ++ [$3] }
+Assignment:
+        identifier ":=" Expression { ($1, $3) }
+MayBeSemicolon:
+        ";" { 0 }
+        | { 0 }
 
 IfConditions:
         IfCondition { [$1] }
@@ -276,6 +286,7 @@ data Expression = Constant Token
                 | Old Expression
                 -- List of if/elseif conds and exps, and then else exps
                 | IfThenElse [(Expression, [Expression])] [Expression]
+                | Let [(String, Expression)] [Expression]
                 deriving (Show, Eq)
 
 main = do
