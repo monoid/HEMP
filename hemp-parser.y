@@ -162,10 +162,10 @@ ListOfRecFields:
         FieldGroup { [$1] }
         | ListOfRecFields "," FieldGroup { $3:$1 }
 FieldGroup:
-        IdentifierList ":" Type { (reverse $1, $3) }
+        IdentifierList ":" Type { ($1, $3) }
 IdentifierList:
         identifier { [$1] }
-        | IdentifierList "," identifier { $3:$1 }
+        | IdentifierList "," identifier { $1++[$3] }
 MayBeComma:
         "," { 0 }
         | { 0 }
@@ -226,7 +226,7 @@ ListOfAssignments:
         Assignment { [$1] }
         | ListOfAssignments ";" Assignment { $1 ++ [$3] }
 Assignment:
-        identifier ":=" Expression { ($1, $3) }
+        IdentifierList ":=" ExpressionList { ($1, $3) }
 MayBeSemicolon:
         ";" { 0 }
         | { 0 }
@@ -286,7 +286,7 @@ data Expression = Constant Token
                 | Old Expression
                 -- List of if/elseif conds and exps, and then else exps
                 | IfThenElse [(Expression, [Expression])] [Expression]
-                | Let [(String, Expression)] [Expression]
+                | Let [([String], [Expression])] [Expression]
                 deriving (Show, Eq)
 
 main = do
