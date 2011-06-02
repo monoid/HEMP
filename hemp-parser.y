@@ -130,14 +130,14 @@ MaybeTypeList:
         | { [] }
 
 PrimitiveType:
-        boolean { $1 }
-        | integer { $1 }
-        | real    { $1 }
-        | double  { $1 }
-        | complex { $1 }
-        | doublecomplex { $1 }
-        | null    { $1 }
-        | character { $1 }
+        boolean { BooleanType }
+        | integer { IntegerType }
+        | real    { RealType }
+        | double  { DoubleType }
+        | complex { ComplexType }
+        | doublecomplex { DoubleComplexType }
+        | null    { NullType }
+        | character { CharacterType }
 
 -- Array type
 ArrayType:
@@ -265,8 +265,19 @@ data GDeclration = GFunctionDeclration String [Argument] [Expression]
 
 data Argument = Argument String Type deriving (Show, Eq)
 
+data PrimitiveType = BooleanType
+                   | IntegerType
+                   | RealType
+                   | DoubleType
+                   | ComplexType
+                   | DoubleComplexType
+                   | NullType
+                   | CharacterType
+                   deriving (Show, Eq)
+
+
 data Type = NamedType String
-          | PrimitiveType Token
+          | PrimitiveType PrimitiveType
           | ArrayType Int Type
           | StreamType Type
           | RecordType [([String], Type)]
