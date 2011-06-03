@@ -267,6 +267,7 @@ TypeDecl:
 
 {
 parseError :: [Token] -> a
+parseError (x:xs) = error ("Parse error at " ++ (show x))
 parseError _ = error "Parse error"
 
 data GDeclration = GFunctionDeclration String [Argument] [Type] [Expression]
