@@ -245,7 +245,18 @@ Constant:
         | echar { TEChar $1 }
 
 FunctionDecl:
-        function identifier "("  ")" ExpressionList end function { GFunctionDeclration $2 [] $5 }
+        function identifier "(" MayBeArgDecl returns TypeList  ")" ExpressionList end function { GFunctionDeclration $2 $4 $6 $8 }
+
+MayBeArgDecl:
+        ArgDecl { $1 }
+        | { [] }
+
+ArgDecl:
+        ArgsNType { $1 }
+        | ArgDecl ";" ArgsNType { $1 ++ $3 }
+
+ArgsNType:
+        IdentifierList ":" Type { zipWith Argument $1 (repeat $3) }
 
 ForwardFunctionDecl:
         forward function identifier "(" MaybeTypeList returns TypeList ")" ";"
@@ -258,7 +269,7 @@ TypeDecl:
 parseError :: [Token] -> a
 parseError _ = error "Parse error"
 
-data GDeclration = GFunctionDeclration String [Argument] [Expression]
+data GDeclration = GFunctionDeclration String [Argument] [Type] [Expression]
                  | GTypeDeclaration String Type
                  | ForwardFunctionDecl [Type] [Type]
                  deriving (Show, Eq)
