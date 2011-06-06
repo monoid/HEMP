@@ -1,5 +1,6 @@
 { -- -*- mode: haskell -*-
 module Main where
+import HempDecl
 import HempLexer
 }
 
@@ -270,47 +271,6 @@ parseError :: [Token] -> a
 parseError (x:xs) = error ("Parse error at " ++ (show x))
 parseError _ = error "Parse error"
 
-data GDeclration = GFunctionDeclration String [Argument] [Type] [Expression]
-                 | GTypeDeclaration String Type
-                 | ForwardFunctionDecl [Type] [Type]
-                 deriving (Show, Eq)
-
-data Argument = Argument String Type deriving (Show, Eq)
-
-data PrimitiveType = BooleanType
-                   | IntegerType
-                   | RealType
-                   | DoubleType
-                   | ComplexType
-                   | DoubleComplexType
-                   | NullType
-                   | CharacterType
-                   deriving (Show, Eq)
-
-
-data Type = NamedType String
-          | PrimitiveType PrimitiveType
-          | ArrayType Int Type
-          | StreamType Type
-          | RecordType [([String], Type)]
-          | UnionType [([String], Type)]
-          | FunctionType [Type] [Type]
-          deriving (Show, Eq)
-
-data Expression = Constant Token
-                | Identifier String
-                | Aref Expression [Expression]
-                | RecordAccess Expression Token
-                | FunCall Expression [Expression]
-                | Not Expression
-                | Neg Expression
-                | BinOp Token Expression Expression
-                | Complex Expression Expression
-                | Old Expression
-                -- List of if/elseif conds and exps, and then else exps
-                | IfThenElse [(Expression, [Expression])] [Expression]
-                | Let [([String], [Expression])] [Expression]
-                deriving (Show, Eq)
 
 main = do
      inStr <- getContents
