@@ -104,7 +104,7 @@ data PrimitiveType = BooleanType
                    | DoubleComplexType
                    | NullType
                    | CharacterType
-                   deriving (Show, Eq)
+                   deriving (Show, Eq, Ord)
 
 
 data Type = NamedType String
