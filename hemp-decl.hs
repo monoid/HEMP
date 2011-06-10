@@ -97,15 +97,22 @@ data GDeclration = GFunctionDeclration String [Argument] [Type] [Expression]
 data Argument = Argument String Type deriving (Show, Eq)
 
 data PrimitiveType = BooleanType
-                   | IntegerType
-                   | RealType
-                   | DoubleType
-                   | ComplexType
-                   | DoubleComplexType
+                   | NumericType NumericType
                    | NullType
                    | CharacterType
                    deriving (Show, Eq, Ord)
 
+data NumericType = RealTypes RealTypes
+                 | ComplexType FractionalType
+                 deriving (Show, Eq, Ord)
+
+data RealTypes = IntegerType
+               | FractionalType FractionalType
+               deriving (Show, Eq, Ord)
+
+data FractionalType = RealType
+                    | DoubleType
+                    deriving (Show, Eq, Ord)
 
 data Type = NamedType String
           | PrimitiveType PrimitiveType

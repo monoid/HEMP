@@ -132,11 +132,11 @@ MaybeTypeList:
 
 PrimitiveType:
         boolean { BooleanType }
-        | integer { IntegerType }
-        | real    { RealType }
-        | double  { DoubleType }
-        | complex { ComplexType }
-        | doublecomplex { DoubleComplexType }
+        | integer { NumericType (RealTypes IntegerType) }
+        | real    { NumericType (RealTypes (FractionalType RealType)) }
+        | double  { NumericType (RealTypes (FractionalType DoubleType)) }
+        | complex { NumericType (ComplexType RealType) }
+        | doublecomplex { NumericType (ComplexType DoubleType) }
         | null    { NullType }
         | character { CharacterType }
 

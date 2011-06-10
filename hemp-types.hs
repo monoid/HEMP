@@ -9,11 +9,7 @@ baseArithType (StreamType a) = baseArithType a
 baseArithType _ = Nothing
 
 numeric a = case a of
-                 IntegerType -> True                 
-                 RealType -> True
-                 DoubleType -> True
-                 ComplexType -> True
-                 DoubleComplexType -> True
+                 NumericType _ -> True
                  otherwise -> False
 
 commonType :: PrimitiveType -> PrimitiveType -> Maybe PrimitiveType
@@ -22,16 +18,16 @@ commonType a b = if a > b then
                  else if a == b then
                       Just a
                  else case (a, b) of
-                           (IntegerType, RealType) -> Just RealType
-                           (IntegerType, DoubleType) -> Just DoubleType
-                           (IntegerType, ComplexType) -> Just ComplexType
-                           (IntegerType, DoubleComplexType) -> Just DoubleComplexType
-                           (RealType, DoubleType) -> Just DoubleType
-                           (RealType, ComplexType) -> Just ComplexType
-                           (RealType, DoubleComplexType) -> Just DoubleComplexType
-                           (DoubleType, ComplexType) -> Just DoubleComplexType
-                           (DoubleType, DoubleComplexType) -> Just DoubleComplexType
+                           (NumericType a', NumericType b') -> Just (NumericType (commonNumType a' b'))
                            _ -> Nothing
+
+commonNumType :: NumericType -> NumericType -> NumericType
+commonNumType a b = if a > b then
+                       commonNumType b a
+                    else case (a, b) of
+                         (RealTypes a', RealTypes b') -> RealTypes (max a' b')
+                         (RealTypes IntegerType, ComplexType b') -> ComplexType b'
+                         (RealTypes (FractionalType a'), ComplexType b') -> ComplexType (max a' b')
 
 congruentType :: Type -> Type -> Maybe Type
 congruentType a b = case (a, b) of
