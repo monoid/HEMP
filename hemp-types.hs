@@ -28,6 +28,7 @@ commonNumType a b = if a > b then
                          (RealTypes a', RealTypes b') -> RealTypes (max a' b')
                          (RealTypes IntegerType, ComplexType b') -> ComplexType b'
                          (RealTypes (FractionalType a'), ComplexType b') -> ComplexType (max a' b')
+                         (ComplexType a', ComplexType b') -> ComplexType (max a' b')
 
 congruentType :: Type -> Type -> Maybe Type
 congruentType a b = case (a, b) of
