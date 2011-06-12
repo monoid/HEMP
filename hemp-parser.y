@@ -20,91 +20,91 @@ import HempLexer
 %left UNARY
 
 %token
-        int     { TIntVal $$ }
-        float   { TFloatVal $$ }
-        string  { TString $$ }
-        char    { TChar $$ }
-        echar   { TEChar $$ }
-        identifier { TIdent $$ }
-        ":="       { TAssign }
-        ".."       { TPtPt }
-        "."        { TPoint }
-        ","        { TComma }
-        ":"        { TColon }
-        ";"        { TSemicolon }
-        "["        { TLeftSqBr }
-        "]"        { TRighSqBr }
-        "("        { TLeftRoBr }
-        ")"        { TRighRoBr }
-        cmp        { TCmp $$ }
-        "="        { TEqual }
-        "+"        { TPlus }
-        "-"        { TMinus }
-        "**"       { TExpt }
-        "||"       { TAppend }
-        "*"        { TMult }
-        "/"        { TDiv }
-        "&"        { TAnd }
-        "|"        { TOr }
-        "~"        { TNot }
-        array { TArray }
-        at { TAt }
-        begin { TBegin }
-        boolean { TBoolean }
-        case { TCase }
-        character { TCharacter }
-        complex { TComplex }
-        cross { TCross }
-        default { TDefault }
-        do { TDo }
-        dot { TDot }
-        double { TDouble }
-        doublecomplex { TDoubleComplex }
-        else { TElse }
-        elseif { TElseIf }
-        end { TEnd }
-        err { TError }
-        false { TFalse }
-        for { TFor }
-        foreign { TForeign }
-        forward { TForward }
-        from { TFrom }
-        function { TFunction }
-        if { TIf }
-        imag { TImag }
-        inout { TInOut }
-        integer { TInteger }
-        in { TIn }
-        interface { TInterface }
-        is { TIs }
-        let { TLet }
-        module { TModule }
-        nil { TNil }
-        null { TNull }
-        of { TOf }
-        otherwise { TOtherwise }
-        out { TOut }
-        program { TProgram }
-        real { TReal }
-        record { TRecord }
-        returns { TReturns }
-        state { TState }
-        stream { TStream }
-        suffix { TSuffix }
-        then { TThen }
-        to { TTo }
-        true { TTrue }
-        type { TType }
-        when { TWhen }
-        while { TWhile }
-        union { TUnion }
-        unless { TUnless }
-        until { TUntil }
-        initial { TInitial }
-        old { TOld }
-        value { TValue }
-        define { TDefine }
-        underscore { TUnderscore }
+        int     { LIntVal $$ }
+        float   { LFloatVal $$ }
+        string  { LString $$ }
+        char    { LChar $$ }
+        echar   { LEChar $$ }
+        identifier { LIdent $$ }
+        ":="       { LAssign }
+        ".."       { LPtPt }
+        "."        { LPoint }
+        ","        { LComma }
+        ":"        { LColon }
+        ";"        { LSemicolon }
+        "["        { LLeftSqBr }
+        "]"        { LRighSqBr }
+        "("        { LLeftRoBr }
+        ")"        { LRighRoBr }
+        cmp        { LCmp $$ }
+        "="        { LEqual }
+        "+"        { LPlus }
+        "-"        { LMinus }
+        "**"       { LExpt }
+        "||"       { LAppend }
+        "*"        { LMult }
+        "/"        { LDiv }
+        "&"        { LAnd }
+        "|"        { LOr }
+        "~"        { LNot }
+        array { LArray }
+        at { LAt }
+        begin { LBegin }
+        boolean { LBoolean }
+        case { LCase }
+        character { LCharacter }
+        complex { LComplex }
+        cross { LCross }
+        default { LDefault }
+        do { LDo }
+        dot { LDot }
+        double { LDouble }
+        doublecomplex { LDoubleComplex }
+        else { LElse }
+        elseif { LElseIf }
+        end { LEnd }
+        err { LError }
+        false { LFalse }
+        for { LFor }
+        foreign { LForeign }
+        forward { LForward }
+        from { LFrom }
+        function { LFunction }
+        if { LIf }
+        imag { LImag }
+        inout { LInOut }
+        integer { LInteger }
+        in { LIn }
+        interface { LInterface }
+        is { LIs }
+        let { LLet }
+        module { LModule }
+        nil { LNil }
+        null { LNull }
+        of { LOf }
+        otherwise { LOtherwise }
+        out { LOut }
+        program { LProgram }
+        real { LReal }
+        record { LRecord }
+        returns { LReturns }
+        state { LState }
+        stream { LStream }
+        suffix { LSuffix }
+        then { LThen }
+        to { LTo }
+        true { LTrue }
+        type { LType }
+        when { LWhen }
+        while { LWhile }
+        union { LUnion }
+        unless { LUnless }
+        until { LUntil }
+        initial { LInitial }
+        old { LOld }
+        value { LValue }
+        define { LDefine }
+        underscore { LUnderscore }
 %%
 
 Program:
@@ -212,7 +212,7 @@ Expression:
         | Expression "-" Expression { BinOp $2 $1 $3 }
         | Expression "*" Expression { BinOp $2 $1 $3 }
         | Expression "/" Expression { BinOp $2 $1 $3 }
-        | Expression cmp Expression { BinOp (TCmp $2) $1 $3 }
+        | Expression cmp Expression { BinOp (LCmp $2) $1 $3 }
         | Expression "=" Expression { BinOp $2 $1 $3 }
         | Expression "**" Expression { BinOp $2 $1 $3 }
         | "(" Expression "," Expression ")" { Complex $2 $4 }
@@ -239,11 +239,11 @@ IfCondition:
         Expression then ExpressionList { ($1, $3) }
 
 Constant:
-        int { TIntVal $1 }
-        | float { TFloatVal $1 }
-        | string { TString $1 }
-        | char { TChar $1 }
-        | echar { TEChar $1 }
+        int { LIntVal $1 }
+        | float { LFloatVal $1 }
+        | string { LString $1 }
+        | char { LChar $1 }
+        | echar { LEChar $1 }
 
 FunctionDecl:
         function identifier "(" MayBeArgDecl returns TypeList  ")" ExpressionList end function { GFunctionDeclration $2 $4 $6 $8 }

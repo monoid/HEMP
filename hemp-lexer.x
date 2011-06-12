@@ -19,94 +19,94 @@ tokens :-
        "%".*                    ;       -- comment
 
        -- constants
-       $digit+ "#" $alphaNum+   { \s -> TIntVal (readHashedInt s) }
+       $digit+ "#" $alphaNum+   { \s -> LIntVal (readHashedInt s) }
        $digit+(@mantissa|@exponent|@mantissa@exponent)
-                                { \s -> TFloatVal s }
-       $digit+                  { \s -> TIntVal ((read s), True) }
-       \" ([^\"]|\\.)+ \"       { \s -> TString ((init . tail) s) }
-       '[^']'                   { \s -> TChar (s!!1) }  -- ordinary chars
-       '\\.'                    { \s -> TEChar (s!!2) } -- '\n' etc
+                                { \s -> LFloatVal s }
+       $digit+                  { \s -> LIntVal ((read s), True) }
+       \" ([^\"]|\\.)+ \"       { \s -> LString ((init . tail) s) }
+       '[^']'                   { \s -> LChar (s!!1) }  -- ordinary chars
+       '\\.'                    { \s -> LEChar (s!!2) } -- '\n' etc
        -- keywords
-       ":="                     { \s -> TAssign }
-       "="                      { \s -> TEqual }
-       ".."                     { \s -> TPtPt }
-       "."                      { \s -> TPoint }
-       ","                      { \s -> TComma }
-       ":"                      { \s -> TColon }
-       ";"                      { \s -> TSemicolon }
-       "["                      { \s -> TLeftSqBr }
-       "]"                      { \s -> TRighSqBr }
-       "("                      { \s -> TLeftRoBr }
-       ")"                      { \s -> TRighRoBr }
+       ":="                     { \s -> LAssign }
+       "="                      { \s -> LEqual }
+       ".."                     { \s -> LPtPt }
+       "."                      { \s -> LPoint }
+       ","                      { \s -> LComma }
+       ":"                      { \s -> LColon }
+       ";"                      { \s -> LSemicolon }
+       "["                      { \s -> LLeftSqBr }
+       "]"                      { \s -> LRighSqBr }
+       "("                      { \s -> LLeftRoBr }
+       ")"                      { \s -> LRighRoBr }
        "<" | ">" | "~=" | "<=" | ">="
-                                { \s -> TCmp s }
-       "+"                      { \s -> TPlus }
-       "-"                      { \s -> TMinus }
-       "**"                     { \s -> TExpt }
-       "||"                     { \s -> TAppend }
-       "*"                      { \s -> TMult }
-       "/"                      { \s -> TDiv }
-       "&"                      { \s -> TAnd }
-       "~"                      { \s -> TNot }
-       "array"                  { \s -> TArray }
-       "at"                     { \s -> TAt }
-       "begin"                  { \s -> TBegin }
-       "boolean"                { \s -> TBoolean }
-       "case"                   { \s -> TCase }
-       "character"              { \s -> TCharacter }
-       "complex"                { \s -> TComplex }
-       "cross"                  { \s -> TCross }
-       "default"                { \s -> TDefault }
-       "do"                     { \s -> TDo }
-       "dot"                    { \s -> TDot }
-       "double"                 { \s -> TDouble }
-       "double_complex"         { \s -> TDoubleComplex }
-       "else"                   { \s -> TElse }
-       "elseif"                 { \s -> TElseIf }
-       "end"                    { \s -> TEnd }
-       "false"                  { \s -> TFalse }
-       "for"                    { \s -> TFor }
-       "foreign"                { \s -> TForeign }
-       "forward"                { \s -> TForward }
-       "from"                   { \s -> TFrom }
-       "function"               { \s -> TFunction }
-       "if"                     { \s -> TIf }
-       "imag"                   { \s -> TImag }
-       "inout"                  { \s -> TInOut }
-       "in"                     { \s -> TIn }
-       "integer"                { \s -> TInteger }
-       "interface"              { \s -> TInterface }
-       "is"                     { \s -> TIs }
-       "let"                    { \s -> TLet }
-       "module"                 { \s -> TModule }
-       "nil"                    { \s -> TNil }
-       "null"                   { \s -> TNull }
-       "of"                     { \s -> TOf }
-       "otherwise"              { \s -> TOtherwise }
-       "out"                    { \s -> TOut }
-       "program"                { \s -> TProgram }
-       "real"                   { \s -> TReal }
-       "record"                 { \s -> TRecord }
-       "returns"                { \s -> TReturns }
-       "state"                  { \s -> TState }
-       "stream"                 { \s -> TStream }
-       "suffix"                 { \s -> TSuffix }
-       "then"                   { \s -> TThen }
-       "to"                     { \s -> TTo }
-       "true"                   { \s -> TTrue }
-       "type"                   { \s -> TType }
-       "when"                   { \s -> TWhen }
-       "while"                  { \s -> TWhile }
-       "union"                  { \s -> TUnion }
-       "unless"                 { \s -> TUnless }
-       "until"                  { \s -> TUntil }
-       "initial"                { \s -> TInitial }
-       "old"                    { \s -> TOld }
-       "value"                  { \s -> TValue }
-       "define"                 { \s -> TDefine }
-       "_"                      { \s -> TUnderscore }
+                                { \s -> LCmp s }
+       "+"                      { \s -> LPlus }
+       "-"                      { \s -> LMinus }
+       "**"                     { \s -> LExpt }
+       "||"                     { \s -> LAppend }
+       "*"                      { \s -> LMult }
+       "/"                      { \s -> LDiv }
+       "&"                      { \s -> LAnd }
+       "~"                      { \s -> LNot }
+       "array"                  { \s -> LArray }
+       "at"                     { \s -> LAt }
+       "begin"                  { \s -> LBegin }
+       "boolean"                { \s -> LBoolean }
+       "case"                   { \s -> LCase }
+       "character"              { \s -> LCharacter }
+       "complex"                { \s -> LComplex }
+       "cross"                  { \s -> LCross }
+       "default"                { \s -> LDefault }
+       "do"                     { \s -> LDo }
+       "dot"                    { \s -> LDot }
+       "double"                 { \s -> LDouble }
+       "double_complex"         { \s -> LDoubleComplex }
+       "else"                   { \s -> LElse }
+       "elseif"                 { \s -> LElseIf }
+       "end"                    { \s -> LEnd }
+       "false"                  { \s -> LFalse }
+       "for"                    { \s -> LFor }
+       "foreign"                { \s -> LForeign }
+       "forward"                { \s -> LForward }
+       "from"                   { \s -> LFrom }
+       "function"               { \s -> LFunction }
+       "if"                     { \s -> LIf }
+       "imag"                   { \s -> LImag }
+       "inout"                  { \s -> LInOut }
+       "in"                     { \s -> LIn }
+       "integer"                { \s -> LInteger }
+       "interface"              { \s -> LInterface }
+       "is"                     { \s -> LIs }
+       "let"                    { \s -> LLet }
+       "module"                 { \s -> LModule }
+       "nil"                    { \s -> LNil }
+       "null"                   { \s -> LNull }
+       "of"                     { \s -> LOf }
+       "otherwise"              { \s -> LOtherwise }
+       "out"                    { \s -> LOut }
+       "program"                { \s -> LProgram }
+       "real"                   { \s -> LReal }
+       "record"                 { \s -> LRecord }
+       "returns"                { \s -> LReturns }
+       "state"                  { \s -> LState }
+       "stream"                 { \s -> LStream }
+       "suffix"                 { \s -> LSuffix }
+       "then"                   { \s -> LThen }
+       "to"                     { \s -> LTo }
+       "true"                   { \s -> LTrue }
+       "type"                   { \s -> LType }
+       "when"                   { \s -> LWhen }
+       "while"                  { \s -> LWhile }
+       "union"                  { \s -> LUnion }
+       "unless"                 { \s -> LUnless }
+       "until"                  { \s -> LUntil }
+       "initial"                { \s -> LInitial }
+       "old"                    { \s -> LOld }
+       "value"                  { \s -> LValue }
+       "define"                 { \s -> LDefine }
+       "_"                      { \s -> LUnderscore }
        -- variable
-       $alpha $alphaNum*        { \s -> TIdent s }
+       $alpha $alphaNum*        { \s -> LIdent s }
 
 {
 --

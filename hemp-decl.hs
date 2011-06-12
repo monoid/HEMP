@@ -1,92 +1,92 @@
 module HempDecl where
 
 data Token =
-           TIntVal  (Integer, Bool) |
-           TFloatVal String |
-           TString   String |
-           TChar     Char   |
-           TEChar    Char   |
-           TIdent    String |
-           TAssign          |
-           TPtPt            |
-           TPoint           |
-           TComma           |
-           TColon           |
-           TSemicolon       |
-           TLeftSqBr        |
-           TRighSqBr        |
-           TLeftRoBr        |
-           TRighRoBr        |
-           TCmp      String | -- Comparsion: <, >, <=, >=, ~=
-           TEqual           |
-           TPlus            |
-           TMinus           |
-           TExpt            |
-           TAppend          |
-           TMult            |
-           TDiv             |
-           TAnd             |
-           TOr              |
-           TNot             |
+           LIntVal  (Integer, Bool) |
+           LFloatVal String |
+           LString   String |
+           LChar     Char   |
+           LEChar    Char   |
+           LIdent    String |
+           LAssign          |
+           LPtPt            |
+           LPoint           |
+           LComma           |
+           LColon           |
+           LSemicolon       |
+           LLeftSqBr        |
+           LRighSqBr        |
+           LLeftRoBr        |
+           LRighRoBr        |
+           LCmp      String | -- Comparsion: <, >, <=, >=, ~=
+           LEqual           |
+           LPlus            |
+           LMinus           |
+           LExpt            |
+           LAppend          |
+           LMult            |
+           LDiv             |
+           LAnd             |
+           LOr              |
+           LNot             |
            -- keywords
-           TArray           |
-           TAt              |
-           TBegin           |
-           TBoolean         |
-           TCase            |
-           TCharacter       |
-           TComplex         |
-           TCross           |
-           TDefault         |
-           TDo              |
-           TDot             |
-           TDouble          |
-           TDoubleComplex   |
-           TElse            |
-           TElseIf          |
-           TEnd             |
-           TError           |
-           TFalse           |
-           TFor             |
-           TForeign         |
-           TForward         |
-           TFrom            |
-           TFunction        |
-           TIf              |
-           TImag            |
-           TInOut           |
-           TInteger         |
-           TIn              |
-           TInterface       |
-           TIs              |
-           TLet             |
-           TModule          |
-           TNil             |
-           TNull            |
-           TOf              |
-           TOtherwise       |
-           TOut             |
-           TProgram         |
-           TReal            |
-           TRecord          |
-           TReturns         |
-           TState           |
-           TStream          |
-           TSuffix          |
-           TThen            |
-           TTo              |
-           TTrue            |
-           TType            |
-           TWhen            |
-           TWhile           |
-           TUnion           |
-           TUnless          |
-           TUntil           |
-           TInitial         |
-           TOld             |
-           TValue           |
-           TDefine          |
-           TUnderscore
+           LArray           |
+           LAt              |
+           LBegin           |
+           LBoolean         |
+           LCase            |
+           LCharacter       |
+           LComplex         |
+           LCross           |
+           LDefault         |
+           LDo              |
+           LDot             |
+           LDouble          |
+           LDoubleComplex   |
+           LElse            |
+           LElseIf          |
+           LEnd             |
+           LError           |
+           LFalse           |
+           LFor             |
+           LForeign         |
+           LForward         |
+           LFrom            |
+           LFunction        |
+           LIf              |
+           LImag            |
+           LInOut           |
+           LInteger         |
+           LIn              |
+           LInterface       |
+           LIs              |
+           LLet             |
+           LModule          |
+           LNil             |
+           LNull            |
+           LOf              |
+           LOtherwise       |
+           LOut             |
+           LProgram         |
+           LReal            |
+           LRecord          |
+           LReturns         |
+           LState           |
+           LStream          |
+           LSuffix          |
+           LThen            |
+           LTo              |
+           LTrue            |
+           LType            |
+           LWhen            |
+           LWhile           |
+           LUnion           |
+           LUnless          |
+           LUntil           |
+           LInitial         |
+           LOld             |
+           LValue           |
+           LDefine          |
+           LUnderscore
            deriving (Eq, Show)
 
 data GDeclration = GFunctionDeclration String [Argument] [Type] [Expression]
