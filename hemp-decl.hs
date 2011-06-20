@@ -139,3 +139,34 @@ data Expression = Constant Token
                 | IfThenElse Expression [Expression] [Expression]
                 | Let [([String], [Expression])] [Expression]
                 deriving (Show, Eq)
+
+-- Sequence of bindings (variable name and type information, inferred
+-- or declared) and, maybe, parent environment.
+type Env = [(String, Type)]
+
+data TExp = TConstant Token
+          | TVariable String -- TODO
+          | TConversion TPair Type -- From type
+          | TArith TPair TPair -- TODO: field for operation!!!
+          | TCmp TCmp TPair TPair
+          | TStdFuncall String [TPair]
+          | TFuncall String [TPair]
+          | TNot TPair
+          | TNeg TPair
+          -- Compound expressions
+          | TSimpleIfThenElse TPair TPair TPair
+          | TIfThenElse TPair [TPair] [TPair]
+          | TLet [([String], [TPair])] [TPair]
+          deriving (Show, Eq)
+
+-- TODO: use values from LLVM cmp operation
+data TCmp = TCmpEq
+          | TCmpLt
+          | TCmpLe
+          | TCmpGt
+          | TCmpGe
+          deriving (Show, Eq)
+
+-- Expression with type
+data TPair = TPair TExp Type -- TODO: what is type of TIfThenElse?
+             deriving (Show, Eq)
