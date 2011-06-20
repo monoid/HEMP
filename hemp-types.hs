@@ -56,3 +56,23 @@ congruentType a b =
                                
          _ -> Nothing
 
+
+deduceTypes :: Expression -> TPair
+deduceTypes (Constant t) =
+    case t of
+         LIntVal (a, _) -> TPair (TConstant t) (PrimitiveType (NumericType (RealTypes IntegerType)))
+         LFloatVal s -> TPair (TConstant t) (PrimitiveType (NumericType (RealTypes (FractionalType RealType))))
+         LTrue -> TPair (TConstant t) (PrimitiveType BooleanType)
+         LFalse -> TPair (TConstant t) (PrimitiveType BooleanType)
+
+deduceTypes (Not e) = let (TPair e' (PrimitiveType BooleanType)) = deduceTypes e
+                      in TPair (TNot e') BooleanType
+
+deduceTypes (Neg e) = let (TPair e' (PrimitiveType (NumericType t))) = deduceTypes e
+                      in TPair (TNeg e') (PrimitiveType (NumericType t))
+
+deduceTypes (BinOp op e1 e2) = let TPair e1' t1 = deduceTypes e1
+                                   TPair e2' t2 = deduceTypes e2
+                                   Just tc = commonType t1 t2
+                               in TPair (TBinOp op e1' e2') tc
+                      
