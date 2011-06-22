@@ -118,8 +118,8 @@ data Type = NamedType String
           | TPrimitive TPrimitive
           | TArray Int Type
           | TStream Type
-          | TRecord [([String], Type)]
-          | TUnion [([String], Type)]
+          | TRecord [(String, Type)]
+          | TUnion [(String, Type)]
           | TFunction [Type] [Type]
           deriving (Show, Eq)
 

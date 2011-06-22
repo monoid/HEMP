@@ -156,14 +156,14 @@ StreamType:
 
 -- Record and union has common structure
 RecordType:
-        record "[" ListOfRecFields MayBeComma "]" { TRecord (reverse $3) }
+        record "[" ListOfRecFields MayBeComma "]" { TRecord $3 }
 UnionType:
         union "[" ListOfRecFields MayBeComma "]" { TUnion (reverse $3) }
 ListOfRecFields:
-        FieldGroup { [$1] }
-        | ListOfRecFields "," FieldGroup { $3:$1 }
+        FieldGroup { $1 }
+        | ListOfRecFields "," FieldGroup { $1 ++ $3 }
 FieldGroup:
-        IdentifierList ":" Type { ($1, $3) }
+        IdentifierList ":" Type { zip $1 (repeat $3) }
 IdentifierList:
         identifier { [$1] }
         | IdentifierList "," identifier { $1++[$3] }
