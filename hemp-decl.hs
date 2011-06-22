@@ -133,7 +133,9 @@ data Expression = Constant Token
                 | BinOp Token Expression Expression
                 | Complex Expression Expression
                 | Old Expression
-                -- List of if/elseif conds and exps, and then else exps
-                | IfThenElse [(Expression, [Expression])] [Expression]
+                -- Actually, there should be special node that constructs
+                -- SISAL virtual 'tuples', and special type for these tuples.
+                -- Lists should be eliminated in IfThenElse, Let and loops.
+                | IfThenElse Expression [Expression] [Expression]
                 | Let [([String], [Expression])] [Expression]
                 deriving (Show, Eq)

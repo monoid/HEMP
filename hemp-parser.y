@@ -220,7 +220,7 @@ Expression:
 
 -- Just to keep Expression rule managable, we introduce CompaundExpression
 CompaundExpression:
-        if IfConditions else ExpressionList end if { IfThenElse $2 $4 }
+        if IfConditions else ExpressionList end if { expandIfThen $2 $4 }
         | let ListOfAssignments MayBeSemicolon in ExpressionList end let { Let $2 $5 }
 
 ListOfAssignments:
@@ -267,6 +267,11 @@ TypeDecl:
         type identifier "=" Type ";" { GTypeDeclaration $2 $4 }
 
 {
+expandIfThen :: [(Expression, [Expression])] -> [Expression] -> Expression
+expandIfThen [(if', then')] else' = IfThenElse if' then' else'
+expandIfThen ((if', then'):more) lastElse =
+                   IfThenElse if' then' [(expandIfThen more lastElse)]
+
 parseError :: [Token] -> a
 parseError (x:xs) = error ("Parse error at " ++ (show x))
 parseError _ = error "Parse error"
