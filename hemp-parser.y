@@ -115,7 +115,7 @@ Program:
 --
 Type:
         identifier { NamedType $1 }
-        | PrimitiveType { PrimitiveType $1 }
+        | PrimitiveType { TPrimitive $1 }
         | ArrayType     { $1 }
         | StreamType    { $1 }
         | RecordType    { $1 }
@@ -131,18 +131,18 @@ MaybeTypeList:
         | { [] }
 
 PrimitiveType:
-        boolean { BooleanType }
-        | integer { NumericType (RealTypes IntegerType) }
-        | real    { NumericType (RealTypes (FractionalType RealType)) }
-        | double  { NumericType (RealTypes (FractionalType DoubleType)) }
-        | complex { NumericType (ComplexType RealType) }
-        | doublecomplex { NumericType (ComplexType DoubleType) }
-        | null    { NullType }
-        | character { CharacterType }
+        boolean { TBoolean }
+        | integer { TNum (RealTypes TInteger) }
+        | real    { TNum (RealTypes (TFrac TReal)) }
+        | double  { TNum (RealTypes (TFrac TDouble)) }
+        | complex { TNum (TComplex TReal) }
+        | doublecomplex { TNum (TComplex TDouble) }
+        | null    { TNull }
+        | character { TChar }
 
 -- Array type
 ArrayType:
-        array DimSpec of Type { ArrayType $2 $4 }
+        array DimSpec of Type { TArray $2 $4 }
 DimSpec:
         "[" DimSpec1 "]" { $2 }
         | { 1::Int }
@@ -152,13 +152,13 @@ DimSpec1:
 
 -- Stream type
 StreamType:
-        stream of Type { StreamType $3 }
+        stream of Type { TStream $3 }
 
 -- Record and union has common structure
 RecordType:
-        record "[" ListOfRecFields MayBeComma "]" { RecordType (reverse $3) }
+        record "[" ListOfRecFields MayBeComma "]" { TRecord (reverse $3) }
 UnionType:
-        union "[" ListOfRecFields MayBeComma "]" { UnionType (reverse $3) }
+        union "[" ListOfRecFields MayBeComma "]" { TUnion (reverse $3) }
 ListOfRecFields:
         FieldGroup { [$1] }
         | ListOfRecFields "," FieldGroup { $3:$1 }
@@ -173,7 +173,7 @@ MayBeComma:
 
 -- Function type
 FunctionType:
-        function "(" MaybeTypeList returns TypeList ")" { FunctionType $3 $5 }
+        function "(" MaybeTypeList returns TypeList ")" { TFunction $3 $5 }
 
 --
 -- Top-level declarations: functions and type definitions

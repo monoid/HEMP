@@ -96,31 +96,31 @@ data GDeclration = GFunctionDeclration String [Argument] [Type] [Expression]
 
 data Argument = Argument String Type deriving (Show, Eq)
 
-data PrimitiveType = BooleanType
-                   | NumericType NumericType
-                   | NullType
-                   | CharacterType
-                   deriving (Show, Eq, Ord)
+data TPrimitive = TBoolean
+                | TNum TNum
+                | TNull
+                | TChar
+                deriving (Show, Eq, Ord)
 
-data NumericType = RealTypes RealTypes
-                 | ComplexType FractionalType
-                 deriving (Show, Eq, Ord)
+data TNum = RealTypes RealTypes
+          | TComplex TFrac
+          deriving (Show, Eq, Ord)
 
-data RealTypes = IntegerType
-               | FractionalType FractionalType
+data RealTypes = TInteger
+               | TFrac TFrac
                deriving (Show, Eq, Ord)
 
-data FractionalType = RealType
-                    | DoubleType
-                    deriving (Show, Eq, Ord)
+data TFrac = TReal
+           | TDouble
+           deriving (Show, Eq, Ord)
 
 data Type = NamedType String
-          | PrimitiveType PrimitiveType
-          | ArrayType Int Type
-          | StreamType Type
-          | RecordType [([String], Type)]
-          | UnionType [([String], Type)]
-          | FunctionType [Type] [Type]
+          | TPrimitive TPrimitive
+          | TArray Int Type
+          | TStream Type
+          | TRecord [([String], Type)]
+          | TUnion [([String], Type)]
+          | TFunction [Type] [Type]
           deriving (Show, Eq)
 
 data Expression = Constant Token
