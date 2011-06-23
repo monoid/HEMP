@@ -134,7 +134,7 @@ instance Show (Type a) where
          show (TStream a) = "(TStream " ++ (show a) ++ ")"
          show (TRecord a) = "(TRecord " ++ (show a) ++ ")"
          show (TUnion a) = "(TUnion " ++ (show a) ++ ")"
-         show (TFunction a b) = "(TUnion " ++ (show a) ++ " " ++ (show b) ++ ")"
+         show (TFunction a b) = "(TFunction " ++ (show a) ++ " " ++ (show b) ++ ")"
          show (TTuple a) = "(TTuple " ++ (show a) ++ ")"
 
 
