@@ -4,7 +4,7 @@ import HempDecl
 
 -- Base type of primitive types, arrays and stream.
 -- For example, base type of array (or stream) of integer is integer.
-baseArithType :: Type -> Maybe TPrimitive
+baseArithType :: Type a -> Maybe TPrimitive
 baseArithType (TPrimitive a) = Just a
 baseArithType (TArray n a) = baseArithType a
 baseArithType (TStream a) = baseArithType a
@@ -32,7 +32,7 @@ commonNumType a b = max a b
 
 
 -- Common types for arrays and primitive types
-congruentType :: Type -> Type -> Maybe Type
+congruentType :: Type Single -> Type Single -> Maybe (Type Single)
 congruentType a b =
     case (a, b) of
     -- TODO: get rid of m and n at all...  Do nested

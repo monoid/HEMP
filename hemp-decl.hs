@@ -89,12 +89,12 @@ data Token =
            LUnderscore
            deriving (Eq, Show)
 
-data GDeclration = GFunctionDeclration String [Argument] [Type] [Expression]
-                 | GTypeDeclaration String Type
-                 | ForwardFunctionDecl [Type] [Type]
+data GDeclration = GFunctionDeclration String [Argument] [Type Single] [Expression]
+                 | GTypeDeclaration String (Type Single)
+                 | ForwardFunctionDecl [Type Single] [Type Single]
                  deriving (Show, Eq)
 
-data Argument = Argument String Type deriving (Show, Eq)
+data Argument = Argument String (Type Single) deriving (Show, Eq)
 
 data TPrimitive = TBoolean
                 | TNum TNum
@@ -114,14 +114,39 @@ data TFrac = TReal
            | TDouble
            deriving (Show, Eq, Ord)
 
-data Type = NamedType String
-          | TPrimitive TPrimitive
-          | TArray Int Type
-          | TStream Type
-          | TRecord [(String, Type)]
-          | TUnion [(String, Type)]
-          | TFunction [Type] [Type]
-          deriving (Show, Eq)
+data Single
+data Tuple
+
+data Type a where
+     NamedType :: String -> Type Single
+     TPrimitive :: TPrimitive -> Type Single
+     TArray :: Int -> Type Single -> Type Single
+     TStream :: Type Single -> Type Single
+     TRecord :: [(String, Type Single)] -> Type Single
+     TUnion :: [(String, Type Single)] -> Type Single
+     TFunction :: [Type Single] -> [Type Single] -> Type Single
+     TTuple :: [Type Single] -> Type Tuple
+
+instance Show (Type a) where
+         show (NamedType a) = "(NamedType " ++ (show a) ++ ")"
+         show (TPrimitive a) = "(TPrimitive " ++ (show a) ++ ")"
+         show (TArray n a) = "(TArray " ++ (show n) ++ " " ++ (show a) ++ ")"
+         show (TStream a) = "(TStream " ++ (show a) ++ ")"
+         show (TRecord a) = "(TRecord " ++ (show a) ++ ")"
+         show (TUnion a) = "(TUnion " ++ (show a) ++ ")"
+         show (TFunction a b) = "(TUnion " ++ (show a) ++ " " ++ (show b) ++ ")"
+         show (TTuple a) = "(TTuple " ++ (show a) ++ ")"
+
+
+instance Eq (Type a) where
+         (==) (NamedType a) (NamedType b) = (a == b)
+         (==) (TPrimitive a) (TPrimitive b) = (a == b)
+         (==) (TArray n a) (TArray m b) = (n == m) && (a == b)
+         (==) (TStream a) (TStream b) = (a == b)
+         (==) (TRecord a) (TRecord b) = (a == b)
+         (==) (TUnion a) (TUnion b) = (a == b)
+         (==) (TFunction a b) (TFunction a' b') = (a == a') && (b == b')
+         (==) (TTuple a) (TTuple b) = (a == b)
 
 data Expression = Constant Token
                 | Identifier String
@@ -133,9 +158,12 @@ data Expression = Constant Token
                 | BinOp Token Expression Expression
                 | Complex Expression Expression
                 | Old Expression
-                -- Actually, there should be special node that constructs
-                -- SISAL virtual 'tuples', and special type for these tuples.
-                -- Lists should be eliminated in IfThenElse, Let and loops.
+                -- SISAL's virtual 'tuples' that can be returned by
+                -- compound expressions like if, loops and functions.
+                -- Values of this type cannot be assigned to
+                -- variables (but each element can).
+                | Tuple [Expression]
+                -- Compound expressions
                 | IfThenElse Expression [Expression] [Expression]
                 | Let [([String], [Expression])] [Expression]
                 deriving (Show, Eq)
