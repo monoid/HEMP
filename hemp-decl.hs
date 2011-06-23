@@ -92,9 +92,9 @@ data Token =
 data GDeclration = GFunctionDeclration String [Argument] [Type Single] [Expression]
                  | GTypeDeclaration String (Type Single)
                  | ForwardFunctionDecl [Type Single] [Type Single]
-                 deriving (Show, Eq)
+                 deriving (Show)
 
-data Argument = Argument String (Type Single) deriving (Show, Eq)
+data Argument = Argument String (Type Single) deriving (Show)
 
 data TPrimitive = TBoolean
                 | TNum TNum
@@ -137,16 +137,6 @@ instance Show (Type a) where
          show (TFunction a b) = "(TFunction " ++ (show a) ++ " " ++ (show b) ++ ")"
          show (TTuple a) = "(TTuple " ++ (show a) ++ ")"
 
-
-instance Eq (Type a) where
-         (==) (NamedType a) (NamedType b) = (a == b)
-         (==) (TPrimitive a) (TPrimitive b) = (a == b)
-         (==) (TArray n a) (TArray m b) = (n == m) && (a == b)
-         (==) (TStream a) (TStream b) = (a == b)
-         (==) (TRecord a) (TRecord b) = (a == b)
-         (==) (TUnion a) (TUnion b) = (a == b)
-         (==) (TFunction a b) (TFunction a' b') = (a == a') && (b == b')
-         (==) (TTuple a) (TTuple b) = (a == b)
 
 data Expression = Constant Token
                 | Identifier String
