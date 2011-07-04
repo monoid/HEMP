@@ -153,6 +153,7 @@ data TExp = TConstant Token
           | TFuncall String [TPair]
           | TNot TPair
           | TNeg TPair
+          | TConv TPair Type
           -- Compound expressions
           | TSimpleIfThenElse TPair TPair TPair
           | TIfThenElse TPair [TPair] [TPair]
@@ -165,6 +166,7 @@ data TCmp = TCmpEq
           | TCmpLe
           | TCmpGt
           | TCmpGe
+          | TCmpNe
           deriving (Show, Eq)
 
 -- Expression with type

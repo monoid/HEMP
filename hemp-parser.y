@@ -2,6 +2,7 @@
 module Main where
 import HempDecl
 import HempLexer
+import HempTypes
 }
 
 %name hemp
@@ -279,7 +280,14 @@ parseError _ = error "Parse error"
 
 main = do
      inStr <- getContents
-     let parseTree = hemp (alexScanTokens inStr)
-     putStrLn ("parseTree: " ++ show(parseTree))
+     let [(GFunctionDeclration n a r body)] = hemp (alexScanTokens inStr)
+     putStrLn ("parseTree: " ++ show (map deduceTypes body))
      print "done"
 }
+
+-- main = do
+--      inStr <- getContents
+--      let parseTree = hemp (alexScanTokens inStr)
+--      putStrLn ("parseTree: " ++ show(parseTree))
+--      print "done"
+-- }

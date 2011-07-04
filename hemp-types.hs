@@ -60,19 +60,31 @@ congruentType a b =
 deduceTypes :: Expression -> TPair
 deduceTypes (Constant t) =
     case t of
-         LIntVal (a, _) -> TPair (TConstant t) (PrimitiveType (NumericType (RealTypes IntegerType)))
-         LFloatVal s -> TPair (TConstant t) (PrimitiveType (NumericType (RealTypes (FractionalType RealType))))
-         LTrue -> TPair (TConstant t) (PrimitiveType BooleanType)
-         LFalse -> TPair (TConstant t) (PrimitiveType BooleanType)
+         LIntVal (a, _) -> TPair (TConstant t) (TPrimitive (TNum (RealTypes TInteger)))
+         LFloatVal s -> TPair (TConstant t) (TPrimitive (TNum (RealTypes (TFrac TReal))))
+         LTrue -> TPair (TConstant t) (TPrimitive TBoolean)
+         LFalse -> TPair (TConstant t) (TPrimitive TBoolean)
 
-deduceTypes (Not e) = let (TPair e' (PrimitiveType BooleanType)) = deduceTypes e
-                      in TPair (TNot e') BooleanType
+deduceTypes (Not e) = let a@(TPair e' (TPrimitive TBoolean)) = deduceTypes e
+                      in TPair (TNot a) (TPrimitive TBoolean) 
 
-deduceTypes (Neg e) = let (TPair e' (PrimitiveType (NumericType t))) = deduceTypes e
-                      in TPair (TNeg e') (PrimitiveType (NumericType t))
+deduceTypes (Neg e) = let a@(TPair e' (TPrimitive (TNum t))) = deduceTypes e
+                      in TPair (TNeg a) (TPrimitive (TNum t))
 
-deduceTypes (BinOp op e1 e2) = let TPair e1' t1 = deduceTypes e1
-                                   TPair e2' t2 = deduceTypes e2
-                                   Just tc = commonType t1 t2
-                               in TPair (TBinOp op e1' e2') tc
-                      
+deduceTypes (BinOp (LCmp op) e1 e2) =
+      let a1@(TPair e1' (TPrimitive t1)) = deduceTypes e1
+          a2@(TPair e2' (TPrimitive t2)) = deduceTypes e2
+          Just tc = commonType t1 t2
+          tc' = TPrimitive tc
+      in TPair (TCmp (cmpOp op) (conv a1 tc') (conv a2 tc')) (TPrimitive TBoolean)
+
+conv :: TPair -> Type -> TPair
+conv p@(TPair e t) t' | t == t' = p
+-- t' is duplicated here.  Do we have to keep type in TConv?
+conv p t' = TPair (TConv p t') t'
+
+cmpOp "<"   = TCmpLt
+cmpOp ">"   = TCmpGt
+cmpOp "<="  = TCmpLe
+cmpOp ">="  = TCmpGe
+cmpOp "^="  = TCmpNe
