@@ -59,9 +59,9 @@ congruentType a b =
 
 
 -- Do tupe deduction, converting Expression to TPair
-deduceTypes :: Expression -> TPair
+deduceTypes :: Env -> Expression -> TPair
 -- Constant
-deduceTypes (Constant t) =
+deduceTypes _ (Constant t) =
     case t of
          LIntVal (a, _) -> TPair (TConstant t) (TPrimitive (TNum (RealTypes TInteger)))
          LFloatVal s -> TPair (TConstant t) (TPrimitive (TNum (RealTypes (TFrac TReal))))
@@ -69,28 +69,31 @@ deduceTypes (Constant t) =
          LFalse -> TPair (TConstant t) (TPrimitive TBoolean)
 
 -- Not
-deduceTypes (Not e) = let a@(TPair e' (TPrimitive TBoolean)) = deduceTypes e
+deduceTypes v (Not e) = let a@(TPair e' (TPrimitive TBoolean)) = deduceTypes v e
                       in TPair (TNot a) (TPrimitive TBoolean) 
 
 -- Negation
-deduceTypes (Neg e) = let a@(TPair e' (TPrimitive (TNum t))) = deduceTypes e
+deduceTypes v (Neg e) = let a@(TPair e' (TPrimitive (TNum t))) = deduceTypes v e
                       in TPair (TNeg a) (TPrimitive (TNum t))
 -- Comparsion
-deduceTypes (BinOp (LCmp op) e1 e2) =
-      let a1@(TPair e1' (TPrimitive t1)) = deduceTypes e1
-          a2@(TPair e2' (TPrimitive t2)) = deduceTypes e2
+deduceTypes v (BinOp (LCmp op) e1 e2) =
+      let a1@(TPair e1' (TPrimitive t1)) = deduceTypes v e1
+          a2@(TPair e2' (TPrimitive t2)) = deduceTypes v e2
           Just tc = commonType t1 t2
           tc' = TPrimitive tc
       in TPair (TCmp op (conv a1 tc') (conv a2 tc')) (TPrimitive TBoolean)
 
 -- Equality is a special case
-deduceTypes (BinOp LEqual e1 e2) =
-      let a1@(TPair e1' (TPrimitive t1)) = deduceTypes e1
-          a2@(TPair e2' (TPrimitive t2)) = deduceTypes e2
+deduceTypes v (BinOp LEqual e1 e2) =
+      let a1@(TPair e1' (TPrimitive t1)) = deduceTypes v e1
+          a2@(TPair e2' (TPrimitive t2)) = deduceTypes v e2
           Just tc = commonType t1 t2
           tc' = TPrimitive tc
       in TPair (TCmp CmpEQ (conv a1 tc') (conv a2 tc')) (TPrimitive TBoolean)
 
+deduceTypes v (Identifier n) =
+      let Just t = lookupVar v n
+      in TPair (TVariable n) t
 
 -- create conversion node if type of pair is different from required type;
 -- if they match, just return the pair
@@ -98,3 +101,16 @@ conv :: TPair -> Type -> TPair
 conv p@(TPair e t) t' | t == t' = p
 -- t' is duplicated here.  Do we have to keep type in TConv?
 conv p t' = TPair (TConv p t') t'
+
+
+-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+--
+-- Environment
+
+lookupVar :: Env -> String -> Maybe Type
+lookupVar (Env p b) n =
+          case lookup n b of
+               Nothing -> do
+                             p' <- p
+                             lookupVar p' n
+               t -> t

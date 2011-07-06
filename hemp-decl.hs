@@ -96,7 +96,7 @@ data GDeclration = GFunctionDeclration String [Argument] [Type] [Expression]
                  | ForwardFunctionDecl [Type] [Type]
                  deriving (Show, Eq)
 
-data Argument = Argument String Type deriving (Show, Eq)
+type Argument = (String, Type)
 
 data TPrimitive = TBoolean
                 | TNum TNum
@@ -144,7 +144,11 @@ data Expression = Constant Token
 
 -- Sequence of bindings (variable name and type information, inferred
 -- or declared) and, maybe, parent environment.
-type Env = [(String, Type)]
+type EnvDict = [(String, Type)]
+
+-- Environment has optional parent environment and environment dictonary
+data Env = Env (Maybe Env) EnvDict
+
 
 data TExp = TConstant Token
           | TVariable String -- TODO
@@ -166,3 +170,4 @@ data TExp = TConstant Token
 -- Expression with type
 data TPair = TPair TExp Type -- TODO: what is type of TIfThenElse?
              deriving (Show, Eq)
+

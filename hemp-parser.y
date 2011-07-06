@@ -258,7 +258,7 @@ ArgDecl:
         | ArgDecl ";" ArgsNType { $1 ++ $3 }
 
 ArgsNType:
-        IdentifierList ":" Type { zipWith Argument $1 (repeat $3) }
+        IdentifierList ":" Type { zipWith (,) $1 (repeat $3) }
 
 ForwardFunctionDecl:
         forward function identifier "(" MaybeTypeList returns TypeList ")" ";"
@@ -281,7 +281,7 @@ parseError _ = error "Parse error"
 main = do
      inStr <- getContents
      let [(GFunctionDeclration n a r body)] = hemp (alexScanTokens inStr)
-     putStrLn ("parseTree: " ++ show (map deduceTypes body))
+     putStrLn ("parseTree: " ++ show (map (deduceTypes (Env Nothing a)) body))
      print "done"
 }
 
