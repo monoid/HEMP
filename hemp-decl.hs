@@ -1,4 +1,6 @@
 module HempDecl where
+import LLVM.Core
+
 
 data Token =
            LIntVal  (Integer, Bool) |
@@ -17,7 +19,7 @@ data Token =
            LRighSqBr        |
            LLeftRoBr        |
            LRighRoBr        |
-           LCmp      String | -- Comparsion: <, >, <=, >=, ~=
+           LCmp CmpPredicate | -- Comparsion: <, >, <=, >=, ~=
            LEqual           |
            LPlus            |
            LMinus           |
@@ -148,7 +150,7 @@ data TExp = TConstant Token
           | TVariable String -- TODO
           | TConversion TPair Type -- From type
           | TArith TPair TPair -- TODO: field for operation!!!
-          | TCmp TCmp TPair TPair
+          | TCmp CmpPredicate TPair TPair
           | TStdFuncall String [TPair]
           | TFuncall String [TPair]
           | TNot TPair
@@ -160,14 +162,6 @@ data TExp = TConstant Token
           | TLet [([String], [TPair])] [TPair]
           deriving (Show, Eq)
 
--- TODO: use values from LLVM cmp operation
-data TCmp = TCmpEq
-          | TCmpLt
-          | TCmpLe
-          | TCmpGt
-          | TCmpGe
-          | TCmpNe
-          deriving (Show, Eq)
 
 -- Expression with type
 data TPair = TPair TExp Type -- TODO: what is type of TIfThenElse?

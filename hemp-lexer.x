@@ -3,6 +3,7 @@ module HempLexer where
 import Char (ord, isDigit, isLower, isUpper)
 import Numeric (readInt)
 import HempDecl
+import LLVM.Core
 }
 
 %wrapper "basic"
@@ -38,8 +39,11 @@ tokens :-
        "]"                      { \s -> LRighSqBr }
        "("                      { \s -> LLeftRoBr }
        ")"                      { \s -> LRighRoBr }
-       "<" | ">" | "~=" | "<=" | ">="
-                                { \s -> LCmp s }
+       "<"                      { \s -> LCmp CmpLT }
+       ">"                      { \s -> LCmp CmpGT }
+       "~="                     { \s -> LCmp CmpNE }
+       "<="                     { \s -> LCmp CmpLE }
+       ">="                     { \s -> LCmp CmpGE }
        "+"                      { \s -> LPlus }
        "-"                      { \s -> LMinus }
        "**"                     { \s -> LExpt }

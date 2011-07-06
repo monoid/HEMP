@@ -1,6 +1,7 @@
 module HempTypes where
 
 import HempDecl
+import LLVM.Core
 
 -- Base type of primitive types, arrays and stream.
 -- For example, base type of array (or stream) of integer is integer.
@@ -80,7 +81,7 @@ deduceTypes (BinOp (LCmp op) e1 e2) =
           a2@(TPair e2' (TPrimitive t2)) = deduceTypes e2
           Just tc = commonType t1 t2
           tc' = TPrimitive tc
-      in TPair (TCmp (cmpOp op) (conv a1 tc') (conv a2 tc')) (TPrimitive TBoolean)
+      in TPair (TCmp op (conv a1 tc') (conv a2 tc')) (TPrimitive TBoolean)
 
 -- create conversion node if type of pair is different from required type;
 -- if they match, just return the pair
@@ -88,11 +89,3 @@ conv :: TPair -> Type -> TPair
 conv p@(TPair e t) t' | t == t' = p
 -- t' is duplicated here.  Do we have to keep type in TConv?
 conv p t' = TPair (TConv p t') t'
-
--- Convert comparsion token string to TCmp value.
--- TODO: do it in lexer
-cmpOp "<"   = TCmpLt
-cmpOp ">"   = TCmpGt
-cmpOp "<="  = TCmpLe
-cmpOp ">="  = TCmpGe
-cmpOp "^="  = TCmpNe
