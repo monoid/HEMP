@@ -83,6 +83,15 @@ deduceTypes (BinOp (LCmp op) e1 e2) =
           tc' = TPrimitive tc
       in TPair (TCmp op (conv a1 tc') (conv a2 tc')) (TPrimitive TBoolean)
 
+-- Equality is a special case
+deduceTypes (BinOp LEqual e1 e2) =
+      let a1@(TPair e1' (TPrimitive t1)) = deduceTypes e1
+          a2@(TPair e2' (TPrimitive t2)) = deduceTypes e2
+          Just tc = commonType t1 t2
+          tc' = TPrimitive tc
+      in TPair (TCmp CmpEQ (conv a1 tc') (conv a2 tc')) (TPrimitive TBoolean)
+
+
 -- create conversion node if type of pair is different from required type;
 -- if they match, just return the pair
 conv :: TPair -> Type -> TPair
