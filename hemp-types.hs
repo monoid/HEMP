@@ -57,7 +57,9 @@ congruentType a b =
          _ -> Nothing
 
 
+-- Do tupe deduction, converting Expression to TPair
 deduceTypes :: Expression -> TPair
+-- Constant
 deduceTypes (Constant t) =
     case t of
          LIntVal (a, _) -> TPair (TConstant t) (TPrimitive (TNum (RealTypes TInteger)))
@@ -65,12 +67,14 @@ deduceTypes (Constant t) =
          LTrue -> TPair (TConstant t) (TPrimitive TBoolean)
          LFalse -> TPair (TConstant t) (TPrimitive TBoolean)
 
+-- Not
 deduceTypes (Not e) = let a@(TPair e' (TPrimitive TBoolean)) = deduceTypes e
                       in TPair (TNot a) (TPrimitive TBoolean) 
 
+-- Negation
 deduceTypes (Neg e) = let a@(TPair e' (TPrimitive (TNum t))) = deduceTypes e
                       in TPair (TNeg a) (TPrimitive (TNum t))
-
+-- Comparsion
 deduceTypes (BinOp (LCmp op) e1 e2) =
       let a1@(TPair e1' (TPrimitive t1)) = deduceTypes e1
           a2@(TPair e2' (TPrimitive t2)) = deduceTypes e2
@@ -78,11 +82,15 @@ deduceTypes (BinOp (LCmp op) e1 e2) =
           tc' = TPrimitive tc
       in TPair (TCmp (cmpOp op) (conv a1 tc') (conv a2 tc')) (TPrimitive TBoolean)
 
+-- create conversion node if type of pair is different from required type;
+-- if they match, just return the pair
 conv :: TPair -> Type -> TPair
 conv p@(TPair e t) t' | t == t' = p
 -- t' is duplicated here.  Do we have to keep type in TConv?
 conv p t' = TPair (TConv p t') t'
 
+-- Convert comparsion token string to TCmp value.
+-- TODO: do it in lexer
 cmpOp "<"   = TCmpLt
 cmpOp ">"   = TCmpGt
 cmpOp "<="  = TCmpLe
