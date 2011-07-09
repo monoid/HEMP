@@ -107,10 +107,16 @@ conv p t' = TPair (TConv p t') t'
 --
 -- Environment
 
+maybeOr :: (Maybe a) -> (Maybe a) -> (Maybe a)
+maybeOr Nothing y = y
+maybeOr x _ = x
+
+-- import Maybe
+-- maybeOr a b = if isJust a then a else b
+-- maybeOr' a b = maybe b (Just) a
+
 lookupVar :: Env -> String -> Maybe Type
 lookupVar (Env p b) n =
-          case lookup n b of
-               Nothing -> do
-                             p' <- p
-                             lookupVar p' n
-               t -> t
+          maybeOr (lookup n b)
+                  (do p' <- p
+                      lookupVar p' n)
