@@ -92,7 +92,7 @@ deduceTypes v (BinOp LEqual e1 e2) =
       in TPair (TCmp CmpEQ (conv a1 tc') (conv a2 tc')) (TPrimitive TBoolean)
 
 deduceTypes v (Identifier n) =
-      let Just t = lookupVar v n
+      let Just t = lookupVar n v
       in TPair (TVariable n) t
 
 -- create conversion node if type of pair is different from required type;
@@ -115,8 +115,7 @@ maybeOr x _ = x
 -- maybeOr a b = if isJust a then a else b
 -- maybeOr' a b = maybe b (Just) a
 
-lookupVar :: Env -> String -> Maybe Type
-lookupVar (Env p b) n =
-          maybeOr (lookup n b)
-                  (do p' <- p
-                      lookupVar p' n)
+lookupVar :: String -> Env -> Maybe Type
+lookupVar name (Env parent bindings) =
+          maybeOr (lookup name bindings)
+                  (parent >>= lookupVar name)
