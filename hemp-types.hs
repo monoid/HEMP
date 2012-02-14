@@ -1,7 +1,29 @@
 module HempTypes where
-
 import HempDecl
 import LLVM.Core
+import Control.Monad
+
+class Inferrable f where
+      commonSupertype :: f -> f -> Maybe f
+
+instance Inferrable TPrimitive where
+         commonSupertype (TNum a) (TNum b) = liftM TNum (commonSupertype a b)
+         commonSupertype _ _ = Nothing
+
+instance Inferrable TNum where
+         commonSupertype (RealTypes a) (RealTypes b) = liftM RealTypes (commonSupertype a b)
+         commonSupertype (TComplex a) (TComplex b) = liftM TComplex (commonSupertype a b)
+         commonSupertype (TComplex a) (RealTypes b) = liftM (TComplex . unTFrac) (commonSupertype (TFrac a) b)
+                         where unTFrac (TFrac a) = a
+         commonSupertype a'@(RealTypes b) b'@(TComplex a) = commonSupertype b' a'
+instance Inferrable RealTypes where
+         commonSupertype TInteger a = Just a
+         commonSupertype a TInteger = Just a
+         commonSupertype (TFrac a) (TFrac b) = liftM TFrac (commonSupertype a b)
+
+instance Inferrable TFrac where
+         commonSupertype a b = Just (max a b)
+
 
 -- Base type of primitive types, arrays and stream.
 -- For example, base type of array (or stream) of integer is integer.
@@ -15,23 +37,6 @@ numeric a = case a of
                  TNum _ -> True
                  otherwise -> False
 
--- Common primitive type
-commonType :: TPrimitive -> TPrimitive -> Maybe TPrimitive
-commonType a b
-           | a > b = commonType b a
-           | a == b = Just a
-commonType (TNum a) (TNum b) = Just (TNum (commonNumType a b))
-commonType _ _ = Nothing
-
-
--- Common numeric type
-commonNumType :: TNum -> TNum -> TNum
-commonNumType a b
-              | a > b = commonNumType b a
-commonNumType (RealTypes (TFrac a)) (TComplex b) = TComplex (max a b)
-commonNumType a b = max a b
-
-
 -- Common types for arrays and primitive types
 congruentType :: Type -> Type -> Maybe Type
 congruentType a b =
@@ -39,22 +44,16 @@ congruentType a b =
     -- TODO: get rid of m and n at all...  Do nested
     -- array instead. Or substract 1 from both m and n
          (TArray m a', TArray n b') ->
-                    do
-                        c <- congruentType a' b'
-                        return (TArray 1 c) -- 1 is just a stub
+                    -- 1 is just a stub
+                    liftM (TArray 1) (congruentType a' b')
          (TPrimitive a', TPrimitive b') ->
-                    do
-                        c <- commonType a' b'
-                        return (TPrimitive c)
+                    liftM TPrimitive (commonSupertype a' b')
          (TPrimitive a', TArray m b') ->
-                    do
-                        c <- congruentType (TPrimitive a') b'
-                        return (TArray 1 c) -- 1 is just a stub
+                    -- 1 is just a stub
+                    liftM (TArray 1) (congruentType (TPrimitive a') b')
          (TArray m b', TPrimitive a') ->
-                    do
-                        c <- congruentType (TPrimitive a') b'
-                        return (TArray 1 c) -- 1 is just a stub
-                               
+                    -- 1 is just a stub
+                    liftM (TArray 1) (congruentType (TPrimitive a') b')
          _ -> Nothing
 
 
@@ -79,7 +78,7 @@ deduceTypes v (Neg e) = let a@(TPair e' (TPrimitive (TNum t))) = deduceTypes v e
 deduceTypes v (BinOp (LCmp op) e1 e2) =
       let a1@(TPair e1' (TPrimitive t1)) = deduceTypes v e1
           a2@(TPair e2' (TPrimitive t2)) = deduceTypes v e2
-          Just tc = commonType t1 t2
+          Just tc = commonSupertype t1 t2 -- TODO: what if it is None
           tc' = TPrimitive tc
       in TPair (TCmp op (conv a1 tc') (conv a2 tc')) (TPrimitive TBoolean)
 
@@ -87,7 +86,7 @@ deduceTypes v (BinOp (LCmp op) e1 e2) =
 deduceTypes v (BinOp LEqual e1 e2) =
       let a1@(TPair e1' (TPrimitive t1)) = deduceTypes v e1
           a2@(TPair e2' (TPrimitive t2)) = deduceTypes v e2
-          Just tc = commonType t1 t2
+          Just tc = commonSupertype t1 t2
           tc' = TPrimitive tc
       in TPair (TCmp CmpEQ (conv a1 tc') (conv a2 tc')) (TPrimitive TBoolean)
 
