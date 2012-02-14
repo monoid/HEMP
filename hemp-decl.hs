@@ -166,8 +166,6 @@ data TExp = TConstant Token
           | TLet [([String], [TPair])] [TPair]
           deriving (Show, Eq)
 
-
 -- Expression with type
 data TPair = TPair TExp Type -- TODO: what is type of TIfThenElse?
              deriving (Show, Eq)
-
