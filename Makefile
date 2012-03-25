@@ -1,6 +1,6 @@
 ALEX_OPTS = --ghc
 HAPPY_OPTS = -a -g -c
-GHC_OPTS = -dynamic -O2 -fglasgow-exts -XGADTs
+GHC_OPTS = -O2 
 
 all: hemp-parser
 
