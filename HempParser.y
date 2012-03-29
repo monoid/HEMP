@@ -280,8 +280,10 @@ parseError _ = error "Parse error"
 
 main = do
      inStr <- getContents
-     let [(GFunctionDeclration n a r body)] = hemp (alexScanTokens inStr)
-     putStrLn ("parseTree: " ++ show (map (deduceTypes (Env Nothing a)) body))
+     let decls = hemp (alexScanTokens inStr)
+     mapM (\(GFunctionDeclration n a r body) ->
+                        putStrLn $ (n ++ ": " ++ (show $ map (deduceTypes $ Env Nothing a) body)))
+          decls
      print "done"
 }
 
