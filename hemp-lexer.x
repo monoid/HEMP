@@ -1,6 +1,6 @@
 { -- -*- mode: haskell -*-
 module HempLexer where
-import Char (ord, isDigit, isLower, isUpper)
+import Data.Char (ord, isDigit, isLower, isUpper)
 import Numeric (readInt)
 import HempDecl
 }
