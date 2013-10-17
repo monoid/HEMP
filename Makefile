@@ -1,6 +1,6 @@
 ALEX_OPTS = --ghc
 HAPPY_OPTS = -a -g -c
-GHC_OPTS = -O2 
+GHC_OPTS = -O2 -XGADTs
 
 all: HempParser
 
