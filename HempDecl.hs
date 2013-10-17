@@ -2,6 +2,16 @@ module HempDecl where
 import LLVM.Core
 
 
+data BinaryCode = BoPlus
+                | BoMinus
+                | BoMult
+                | BoDiv
+                | BoExpt
+                | BoAppend
+                | BoAnd
+                | BoOr
+                deriving (Show, Eq)
+
 data Token =
            LIntVal  (Integer, Bool) |
            LFloatVal String |
@@ -21,14 +31,7 @@ data Token =
            LRighRoBr        |
            LCmp CmpPredicate | -- Comparsion: <, >, <=, >=, ~=
            LEqual           |
-           LPlus            |
-           LMinus           |
-           LExpt            |
-           LAppend          |
-           LMult            |
-           LDiv             |
-           LAnd             |
-           LOr              |
+           LBin BinaryCode  |
            LNot             |
            -- keywords
            LArray           |
@@ -91,6 +94,8 @@ data Token =
            LUnderscore
            deriving (Eq, Show)
 
+unbin (LBin bc) = bc
+
 data GDeclration = GFunctionDeclration String [Argument] [Type] [Expression]
                  | GTypeDeclaration String Type
                  | ForwardFunctionDecl [Type] [Type]
@@ -132,7 +137,8 @@ data Expression = Constant Token
                 | FunCall Expression [Expression]
                 | Not Expression
                 | Neg Expression
-                | BinOp Token Expression Expression
+                | BoolOp CmpPredicate Expression Expression
+                | BinOp BinaryCode Expression Expression
                 | Complex Expression Expression
                 | Old Expression
                 -- Actually, there should be special node that constructs
@@ -153,7 +159,7 @@ data Env = Env (Maybe Env) EnvDict
 data TExp = TConstant Token
           | TVariable String -- TODO
           | TConversion TPair Type -- From type
-          | TArith Token TPair TPair
+          | TArith BinaryCode TPair TPair
           | TCmp CmpPredicate TPair TPair
           | TStdFuncall String [TPair]
           | TFuncall String [TPair]

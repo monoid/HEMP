@@ -2,6 +2,7 @@ module HempTypes where
 import HempDecl
 import LLVM.Core
 import Control.Monad
+import Data.Maybe
 
 class Inferrable f where
       commonSupertype :: f -> f -> Maybe f
@@ -56,7 +57,31 @@ congruentType a b =
                     liftM (TArray 1) (congruentType (TPrimitive a') b')
          _ -> Nothing
 
+class HempOp f where
+  validArgTypes :: f -> Type -> Type -> Bool
+  resultType :: f -> Type -> Type -> Maybe Type
+  operation  :: f -> Expression -> Expression -> TPair -> TPair -> TExp
 
+  validArgTypes f a b = isJust (resultType f a b)
+
+instance HempOp CmpPredicate where
+  resultType pred a b = Just (TPrimitive TBoolean)
+  operation  pred a b = TCmp pred
+
+instance HempOp BinaryCode where
+  resultType pred (TPrimitive a) (TPrimitive b) = liftM TPrimitive (commonSupertype a b)
+  operation pred a b = TArith pred
+
+deduceBinaryTypes v op e1 e2 =
+  let a1@(TPair e1' t1'@(TPrimitive t1)) = deduceTypes v e1
+      a2@(TPair e2' t2'@(TPrimitive t2)) = deduceTypes v e2
+      Just tc = commonSupertype t1 t2 -- TODO: what if it is None
+      tc' = TPrimitive tc
+  in (TPair (operation op e1 e2
+              (conv a1 tc')
+              (conv a2 tc'))
+            (fromJust $ resultType op t1' t2'))
+  
 -- Do tupe deduction, converting Expression to TPair
 deduceTypes :: Env -> Expression -> TPair
 -- Constant
@@ -74,28 +99,12 @@ deduceTypes v (Not e) = let a@(TPair e' (TPrimitive TBoolean)) = deduceTypes v e
 -- Negation
 deduceTypes v (Neg e) = let a@(TPair e' (TPrimitive (TNum t))) = deduceTypes v e
                       in TPair (TNeg a) (TPrimitive (TNum t))
+
+
 -- Comparsion
-deduceTypes v (BinOp (LCmp op) e1 e2) =
-      let a1@(TPair e1' (TPrimitive t1)) = deduceTypes v e1
-          a2@(TPair e2' (TPrimitive t2)) = deduceTypes v e2
-          Just tc = commonSupertype t1 t2 -- TODO: what if it is None
-          tc' = TPrimitive tc
-      in TPair (TCmp op (conv a1 tc') (conv a2 tc')) (TPrimitive TBoolean)
+deduceTypes v (BoolOp bop e1 e2) = deduceBinaryTypes v bop e1 e2
 
--- Equality is a special case
-deduceTypes v (BinOp LEqual e1 e2) =
-      let a1@(TPair e1' (TPrimitive t1)) = deduceTypes v e1
-          a2@(TPair e2' (TPrimitive t2)) = deduceTypes v e2
-          Just tc = commonSupertype t1 t2
-          tc' = TPrimitive tc
-      in TPair (TCmp CmpEQ (conv a1 tc') (conv a2 tc')) (TPrimitive TBoolean)
-
-deduceTypes v (BinOp LMult e1 e2) =
-      let a1@(TPair e1' (TPrimitive t1)) = deduceTypes v e1
-          a2@(TPair e2' (TPrimitive t2)) = deduceTypes v e2
-          Just tc = commonSupertype t1 t2
-          tc' = TPrimitive tc
-      in TPair (TArith LMult (conv a1 tc') (conv a2 tc')) (TPrimitive tc)
+deduceTypes v (BinOp bc e1 e2) = deduceBinaryTypes v bc e1 e2
 
 deduceTypes v (Identifier n) =
       let Just t = lookupVar n v

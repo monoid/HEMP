@@ -3,6 +3,7 @@ module Main where
 import HempDecl
 import HempLexer
 import HempTypes
+import LLVM.Core
 }
 
 %name hemp
@@ -39,14 +40,14 @@ import HempTypes
         ")"        { LRighRoBr }
         cmp        { LCmp $$ }
         "="        { LEqual }
-        "+"        { LPlus }
-        "-"        { LMinus }
-        "**"       { LExpt }
-        "||"       { LAppend }
-        "*"        { LMult }
-        "/"        { LDiv }
-        "&"        { LAnd }
-        "|"        { LOr }
+        "+"        { LBin BoPlus }
+        "-"        { LBin BoMinus }
+        "**"       { LBin BoExpt }
+        "||"       { LBin BoAppend }
+        "*"        { LBin BoMult }
+        "/"        { LBin BoDiv }
+        "&"        { LBin BoAnd }
+        "|"        { LBin BoOr }
         "~"        { LNot }
         array { LArray }
         at { LAt }
@@ -206,16 +207,16 @@ Expression:
         -- but it may contain ranges...
         | Expression "[" ExpressionList "]" { Aref $1 $3 }
         | Expression "(" ExpressionList ")" { FunCall $1 $3 }
-        | Expression "|" Expression { BinOp $2 $1 $3 }
-        | Expression "&" Expression { BinOp $2 $1 $3 }
-        | Expression "||" Expression { BinOp $2 $1 $3 }
-        | Expression "+" Expression { BinOp $2 $1 $3 }
-        | Expression "-" Expression { BinOp $2 $1 $3 }
-        | Expression "*" Expression { BinOp $2 $1 $3 }
-        | Expression "/" Expression { BinOp $2 $1 $3 }
-        | Expression cmp Expression { BinOp (LCmp $2) $1 $3 }
-        | Expression "=" Expression { BinOp $2 $1 $3 }
-        | Expression "**" Expression { BinOp $2 $1 $3 }
+        | Expression "|" Expression { BinOp (unbin $2) $1 $3 }
+        | Expression "&" Expression { BinOp (unbin $2) $1 $3 }
+        | Expression "||" Expression { BinOp (unbin $2) $1 $3 }
+        | Expression "+" Expression { BinOp (unbin $2) $1 $3 }
+        | Expression "-" Expression { BinOp (unbin $2) $1 $3 }
+        | Expression "*" Expression { BinOp (unbin $2) $1 $3 }
+        | Expression "/" Expression { BinOp (unbin $2) $1 $3 }
+        | Expression cmp Expression { BoolOp $2 $1 $3 }
+        | Expression "=" Expression { BoolOp CmpEQ $1 $3 }
+        | Expression "**" Expression { BinOp (unbin $2) $1 $3 }
         | "(" Expression "," Expression ")" { Complex $2 $4 }
         | CompaundExpression { $1 }
 

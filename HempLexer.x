@@ -44,13 +44,13 @@ tokens :-
        "~="                     { \s -> LCmp CmpNE }
        "<="                     { \s -> LCmp CmpLE }
        ">="                     { \s -> LCmp CmpGE }
-       "+"                      { \s -> LPlus }
-       "-"                      { \s -> LMinus }
-       "**"                     { \s -> LExpt }
-       "||"                     { \s -> LAppend }
-       "*"                      { \s -> LMult }
-       "/"                      { \s -> LDiv }
-       "&"                      { \s -> LAnd }
+       "+"                      { \s -> LBin BoPlus }
+       "-"                      { \s -> LBin BoMinus }
+       "**"                     { \s -> LBin BoExpt }
+       "||"                     { \s -> LBin BoAppend }
+       "*"                      { \s -> LBin BoMult }
+       "/"                      { \s -> LBin BoDiv }
+       "&"                      { \s -> LBin BoAnd }
        "~"                      { \s -> LNot }
        "array"                  { \s -> LArray }
        "at"                     { \s -> LAt }
