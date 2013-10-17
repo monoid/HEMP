@@ -153,7 +153,7 @@ data Env = Env (Maybe Env) EnvDict
 data TExp = TConstant Token
           | TVariable String -- TODO
           | TConversion TPair Type -- From type
-          | TArith TPair TPair -- TODO: field for operation!!!
+          | TArith Token TPair TPair
           | TCmp CmpPredicate TPair TPair
           | TStdFuncall String [TPair]
           | TFuncall String [TPair]

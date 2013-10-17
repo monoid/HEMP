@@ -90,6 +90,13 @@ deduceTypes v (BinOp LEqual e1 e2) =
           tc' = TPrimitive tc
       in TPair (TCmp CmpEQ (conv a1 tc') (conv a2 tc')) (TPrimitive TBoolean)
 
+deduceTypes v (BinOp LMult e1 e2) =
+      let a1@(TPair e1' (TPrimitive t1)) = deduceTypes v e1
+          a2@(TPair e2' (TPrimitive t2)) = deduceTypes v e2
+          Just tc = commonSupertype t1 t2
+          tc' = TPrimitive tc
+      in TPair (TArith LMult (conv a1 tc') (conv a2 tc')) (TPrimitive tc)
+
 deduceTypes v (Identifier n) =
       let Just t = lookupVar n v
       in TPair (TVariable n) t
