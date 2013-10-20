@@ -72,34 +72,37 @@ instance HempOp BinaryCode where
   resultType pred (TPrimitive a) (TPrimitive b) = liftM TPrimitive (commonSupertype a b)
   operation pred a b = TArith pred
 
-deduceBinaryTypes :: HempOp op => Env -> op -> Expression -> Expression -> TPair
+deduceBinaryTypes :: HempOp op => Env -> op -> Expression -> Expression -> Maybe TPair
 deduceBinaryTypes v op e1 e2 =
-  let a1@(TPair e1' t1'@(TPrimitive t1)) = deduceTypes v e1
-      a2@(TPair e2' t2'@(TPrimitive t2)) = deduceTypes v e2
-      Just tc = commonSupertype t1 t2 -- TODO: what if it is None
-      tc' = TPrimitive tc
-  in (TPair (operation op e1 e2
-              (conv a1 tc')
-              (conv a2 tc'))
-            (fromJust $ resultType op t1' t2'))
+  do a1@(TPair e1' t1'@(TPrimitive t1)) <- deduceTypes v e1
+     a2@(TPair e2' t2'@(TPrimitive t2)) <- deduceTypes v e2
+     tc <- commonSupertype t1 t2 -- TODO: what if it is None
+     tc' <- return (TPrimitive tc)
+     rt <- resultType op t1' t2'
+     return (TPair (operation op e1 e2
+                   (conv a1 tc')
+                   (conv a2 tc'))
+            rt)
   
 -- Do tupe deduction, converting Expression to TPair
-deduceTypes :: Env -> Expression -> TPair
+deduceTypes :: Env -> Expression -> Maybe TPair
 -- Constant
 deduceTypes _ (Constant t) =
-    case t of
-         LIntVal (a, _) -> TPair (TConstant t) (TPrimitive (TNum (RealTypes TInteger)))
-         LFloatVal s -> TPair (TConstant t) (TPrimitive (TNum (RealTypes (TFrac TReal))))
-         LTrue -> TPair (TConstant t) (TPrimitive TBoolean)
-         LFalse -> TPair (TConstant t) (TPrimitive TBoolean)
+    Just (case t of
+       LIntVal (a, _) -> TPair (TConstant t) (TPrimitive (TNum (RealTypes TInteger)))
+       LFloatVal s -> TPair (TConstant t) (TPrimitive (TNum (RealTypes (TFrac TReal))))
+       LTrue -> TPair (TConstant t) (TPrimitive TBoolean)
+       LFalse -> TPair (TConstant t) (TPrimitive TBoolean))
 
 -- Not
-deduceTypes v (Not e) = let a@(TPair e' (TPrimitive TBoolean)) = deduceTypes v e
-                      in TPair (TNot a) (TPrimitive TBoolean) 
+deduceTypes v (Not e) =
+  do a@(TPair e' (TPrimitive TBoolean)) <- deduceTypes v e
+     return $ TPair (TNot a) (TPrimitive TBoolean)
 
 -- Negation
-deduceTypes v (Neg e) = let a@(TPair e' (TPrimitive (TNum t))) = deduceTypes v e
-                      in TPair (TNeg a) (TPrimitive (TNum t))
+deduceTypes v (Neg e) =
+  do a@(TPair e' (TPrimitive (TNum t))) <- deduceTypes v e
+     return $ TPair (TNeg a) (TPrimitive (TNum t))
 
 
 -- Comparsion
@@ -108,8 +111,8 @@ deduceTypes v (BoolOp bop e1 e2) = deduceBinaryTypes v bop e1 e2
 deduceTypes v (BinOp bc e1 e2) = deduceBinaryTypes v bc e1 e2
 
 deduceTypes v (Identifier n) =
-      let Just t = lookupVar n v
-      in TPair (TVariable n) t
+      do t <- lookupVar n v
+         return $ TPair (TVariable n) t
 
 -- create conversion node if type of pair is different from required type;
 -- if they match, just return the pair
