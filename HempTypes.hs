@@ -72,6 +72,7 @@ instance HempOp BinaryCode where
   resultType pred (TPrimitive a) (TPrimitive b) = liftM TPrimitive (commonSupertype a b)
   operation pred a b = TArith pred
 
+deduceBinaryTypes :: HempOp op => Env -> op -> Expression -> Expression -> TPair
 deduceBinaryTypes v op e1 e2 =
   let a1@(TPair e1' t1'@(TPrimitive t1)) = deduceTypes v e1
       a2@(TPair e2' t2'@(TPrimitive t2)) = deduceTypes v e2
