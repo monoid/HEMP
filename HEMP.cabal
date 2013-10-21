@@ -4,7 +4,8 @@ Description:    Parallel functional language inspired by SISAL
 Author:         Ivan Boldyrev
 Maintainer:     lispnik@gmail.com
 Build-Type:     Simple
-Cabal-Version:  >=1.2
+Cabal-Version:  >=1.6
+data-files:     samples/*.sis
 
 Executable HempParser
         Main-is: HempParser.hs
