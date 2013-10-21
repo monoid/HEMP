@@ -109,6 +109,18 @@ import LLVM.Core
         underscore { LUnderscore }
 %%
 
+--
+-- Optional trailing elements without value, like comma, semicolon etc.
+--
+maybe(c): c { 0 }
+        |   { 0 }
+
+--
+-- Optional lists.  d is the list itself, not element
+--
+maybeL(d): d { $1 }
+         |   { [] }
+
 Program:
         TopDeclarationList { reverse $1 }
 
@@ -127,10 +139,6 @@ Type:
 TypeList:
         Type { [$1] }
         | TypeList "," Type { $1 ++ [$3] }
-
-MaybeTypeList:
-        TypeList { $1 }
-        | { [] }
 
 PrimitiveType:
         boolean { TBoolean }
@@ -158,9 +166,9 @@ StreamType:
 
 -- Record and union has common structure
 RecordType:
-        record "[" ListOfRecFields MayBeComma "]" { TRecord $3 }
+        record "[" ListOfRecFields maybe(",") "]" { TRecord $3 }
 UnionType:
-        union "[" ListOfRecFields MayBeComma "]" { TUnion (reverse $3) }
+        union "[" ListOfRecFields maybe(",") "]" { TUnion (reverse $3) }
 ListOfRecFields:
         FieldGroup { $1 }
         | ListOfRecFields "," FieldGroup { $1 ++ $3 }
@@ -169,13 +177,10 @@ FieldGroup:
 IdentifierList:
         identifier { [$1] }
         | IdentifierList "," identifier { $1++[$3] }
-MayBeComma:
-        "," { 0 }
-        | { 0 }
 
 -- Function type
 FunctionType:
-        function "(" MaybeTypeList returns TypeList ")" { TFunction $3 $5 }
+        function "(" maybeL(TypeList) returns TypeList ")" { TFunction $3 $5 }
 
 --
 -- Top-level declarations: functions and type definitions
@@ -223,16 +228,13 @@ Expression:
 -- Just to keep Expression rule managable, we introduce CompaundExpression
 CompaundExpression:
         if IfConditions else ExpressionList end if { expandIfThen $2 $4 }
-        | let ListOfAssignments MayBeSemicolon in ExpressionList end let { Let $2 $5 }
+        | let ListOfAssignments maybe(";") in ExpressionList end let { Let $2 $5 }
 
 ListOfAssignments:
         Assignment { [$1] }
         | ListOfAssignments ";" Assignment { $1 ++ [$3] }
 Assignment:
         IdentifierList ":=" ExpressionList { ($1, $3) }
-MayBeSemicolon:
-        ";" { 0 }
-        | { 0 }
 
 IfConditions:
         IfCondition { [$1] }
@@ -248,21 +250,17 @@ Constant:
         | echar { LEChar $1 }
 
 FunctionDecl:
-        function identifier "(" MayBeArgDecl returns TypeList  ")" ExpressionList end function { GFunctionDeclration $2 $4 $6 $8 }
+        function identifier "(" ArgDecl returns TypeList  ")" ExpressionList end function { GFunctionDeclration $2 $4 $6 $8 }
 
-MayBeArgDecl:
-        ArgDecl { $1 }
-        | { [] }
-
-ArgDecl:
-        ArgsNType { $1 }
-        | ArgDecl ";" ArgsNType { $1 ++ $3 }
+ArgDecl:  { [] }
+       | ArgsNType { $1 }
+       | ArgDecl ";" ArgsNType { $1 ++ $3 }
 
 ArgsNType:
         IdentifierList ":" Type { zipWith (,) $1 (repeat $3) }
 
 ForwardFunctionDecl:
-        forward function identifier "(" MaybeTypeList returns TypeList ")" ";"
+        forward function identifier "(" maybeL(TypeList) returns TypeList ")" ";"
         { ForwardFunctionDecl $5 $7 }
 
 TypeDecl:
