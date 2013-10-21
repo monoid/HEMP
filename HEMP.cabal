@@ -1,6 +1,9 @@
 Name:           HEMP
 Version:        0.0
 Description:    Parallel functional language inspired by SISAL
+Homepage:       http://github.com/monoid/HEMP
+Bug-reports:    https://github.com/monoid/HEMP/issues
+Copyright:      (c) 2013 Ivan Boldyrev
 Author:         Ivan Boldyrev
 Maintainer:     lispnik@gmail.com
 Build-Type:     Simple
