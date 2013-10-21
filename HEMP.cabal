@@ -13,4 +13,4 @@ data-files:     samples/*.sis
 Executable HempParser
         Main-is: HempParser.hs
         Other-modules: HempDecl, HempLexer, HempTypes
-        Build-Depends: array, base, llvm
+        Build-Depends: array, base, llvm >= 3
