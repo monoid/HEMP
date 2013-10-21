@@ -1,0 +1,12 @@
+Name:           HEMP
+Version:        0.0
+Description:    Parallel functional language inspired by SISAL
+Author:         Ivan Boldyrev
+Maintainer:     lispnik@gmail.com
+Build-Type:     Simple
+Cabal-Version:  >=1.2
+
+Executable HempParser
+        Main-is: HempParser.hs
+        Other-modules: HempDecl, HempLexer, HempTypes
+        Build-Depends: array, base, llvm
