@@ -212,16 +212,16 @@ Expression:
         -- but it may contain ranges...
         | Expression "[" ExpressionList "]" { Aref $1 $3 }
         | Expression "(" ExpressionList ")" { FunCall $1 $3 }
-        | Expression "|" Expression { BinOp (unbin $2) $1 $3 }
-        | Expression "&" Expression { BinOp (unbin $2) $1 $3 }
-        | Expression "||" Expression { BinOp (unbin $2) $1 $3 }
-        | Expression "+" Expression { BinOp (unbin $2) $1 $3 }
-        | Expression "-" Expression { BinOp (unbin $2) $1 $3 }
-        | Expression "*" Expression { BinOp (unbin $2) $1 $3 }
-        | Expression "/" Expression { BinOp (unbin $2) $1 $3 }
+        | Expression "|" Expression { binop $2 $1 $3 }
+        | Expression "&" Expression { binop $2 $1 $3 }
+        | Expression "||" Expression { binop $2 $1 $3 }
+        | Expression "+" Expression { binop $2 $1 $3 }
+        | Expression "-" Expression { binop $2 $1 $3 }
+        | Expression "*" Expression { binop $2 $1 $3 }
+        | Expression "/" Expression { binop $2 $1 $3 }
         | Expression cmp Expression { BoolOp $2 $1 $3 }
         | Expression "=" Expression { BoolOp CmpEQ $1 $3 }
-        | Expression "**" Expression { BinOp (unbin $2) $1 $3 }
+        | Expression "**" Expression { binop $2 $1 $3 }
         | "(" Expression "," Expression ")" { Complex $2 $4 }
         | CompaundExpression { $1 }
 

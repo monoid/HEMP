@@ -94,7 +94,7 @@ data Token =
            LUnderscore
            deriving (Eq, Show)
 
-unbin (LBin bc) = bc
+binop (LBin bc) a b = BinOp bc a b
 
 data GDeclration = GFunctionDeclration String [Argument] [Type] [Expression]
                  | GTypeDeclaration String Type
