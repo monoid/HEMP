@@ -1,7 +1,7 @@
 function test(m, n, p, q, i: integer returns array of integer, integer)
-   for i in m, n
+   for i in m, n dot d in m+1, n+1
       x_array, x_scalar := for j in p, q
-                              x := i + j
+                              x := i + j + d
                            returns array of x
                                    value of sum x
                            end for
