@@ -1,0 +1,11 @@
+function test(m, n, p, q, i: integer returns array of integer, integer)
+   for i in m, n
+      x_array, x_scalar := for j in p, q
+                              x := i + j
+                           returns array of x
+                                   value of sum x
+                           end for
+   returns array of x_array
+           value of sum x_scalar
+   end for
+end function
