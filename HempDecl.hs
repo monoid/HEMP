@@ -145,7 +145,7 @@ data Expression = Constant Token
                 -- SISAL virtual 'tuples', and special type for these tuples.
                 -- Lists should be eliminated in IfThenElse, Let and loops.
                 | IfThenElse Expression [Expression] [Expression]
-                | ForLoop ForRange [([String],[Expression])] Expression -- stub
+                | ForLoop ForRange [([String],[Expression])] [LoopExpression]
                 | Let [([String], [Expression])] [Expression]
                 deriving (Show, Eq)
 
@@ -155,6 +155,10 @@ data ForRange = ForRangeCross ForRange ForRange
                 | ForInArray String Expression
                 | ForInArrayIndexed String Expression String
                 deriving (Show, Eq)
+
+data LoopExpression = ArrayOf Expression
+                    | ValueOf String Expression
+                    deriving (Show, Eq)
 
 -- Sequence of bindings (variable name and type information, inferred
 -- or declared) and, maybe, parent environment.

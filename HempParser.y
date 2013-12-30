@@ -124,7 +124,7 @@ maybeL(d): d { $1 }
 --
 -- List (reversed!)
 --
-list(d): list(d) d  { $2:$1 }
+list1(d): list1(d) d  { $2:$1 }
   |  { [] }
 
 --
@@ -279,7 +279,10 @@ ForRange: identifier in Expression "," Expression { ForInRange $1 $3 $5 }
 ForBody: ListOfAssignments { $1 }
 
 -- STUB
-ReturnList: returns Expression { $2 }
+ReturnList: returns list1(LoopExpression) { $2 }
+
+LoopExpression: value of identifier Expression { ValueOf $3 $4 }
+  | array of Expression { ArrayOf $3 }
 
 ----------------------------------------------------------------------
 --
@@ -322,7 +325,7 @@ main = do
      inStr <- getContents
      let decls = hemp (alexScanTokens inStr)
      mapM (\(GFunctionDeclration n a r body) ->
-                        putStrLn $ (n ++ ": " ++ (show $ map (deduceTypes $ Env Nothing a) body)))
+                        putStrLn $ (n ++ ": " ++ (show body)))
           decls
      print "done"
 }
