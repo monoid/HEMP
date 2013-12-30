@@ -240,6 +240,12 @@ Expression:
 CompaundExpression:
         if IfConditions else ExpressionList end if { expandIfThen $2 $4 }
         | let ListOfAssignments maybe(";") in ExpressionList end let { Let (reverse $2) $5 }
+        | ForSimple { $1 }
+
+----------------------------------------------------------------------
+--
+-- Compaund expressions
+--
 
 -- Causes shift-reduce conflict
 -- ListOfAssignments: listNE(Assignment, ";") { reverse($1) }
@@ -255,6 +261,30 @@ IfConditions:
 IfCondition:
         Expression then ExpressionList { ($1, $3) }
 
+ForSimple:
+  for ForRangeCross ForBody ReturnList end for { ForLoop $2 $3 $4 }
+
+ForRangeCross:
+  ForRangeDot { $1 }
+  | ForRangeDot cross ForRangeDot { ForRangeCross $1 $3 }
+ForRangeDot:
+  ForRange { $1 }
+  | ForRange dot ForRange { ForRangeDot $1 $3 }
+
+ForRange: identifier in Expression "," Expression { ForInRange $1 $3 $5 }
+  | identifier in Expression { ForInArray $1 $3 }
+  | identifier in Expression at identifier { ForInArrayIndexed $1 $3 $5 }
+  | "(" ForRangeCross ")" { $2 }
+
+ForBody: ListOfAssignments { $1 }
+
+-- STUB
+ReturnList: returns Expression { $2 }
+
+----------------------------------------------------------------------
+--
+-- Expressions
+--
 Constant:
         int { LIntVal $1 }
         | float { LFloatVal $1 }
