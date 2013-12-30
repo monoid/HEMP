@@ -10,7 +10,7 @@ import LLVM.Core
 
 $digit = 0-9            -- digits
 $alpha = [a-zA-Z_]      -- alphabetic
-$alphaNum = [a-zA-Z0-9]
+$alphaNum = [a-zA-Z0-9_]
 
 @mantissa = (\.$digit*)
 @exponent = ([edED][\+\-]?$digit+)
