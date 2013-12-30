@@ -121,8 +121,29 @@ maybe(c): c { 0 }
 maybeL(d): d { $1 }
          |   { [] }
 
+--
+-- List (reversed!)
+--
+list(d): list(d) d  { $2:$1 }
+  |  { [] }
+
+--
+-- List with separator (reversed!)
+--
+list(d,s): list(d, s) s d { $3:$1 }
+  | d { [$1] }
+  |  { [] }
+
+-- Non-empty list (reversed!)
+listNE1(d): listNE1(d) d { $2:$1 }
+  | d { [$1] }
+
+-- Non-empty list with separator (reversed!)
+listNE(d, s): listNE(d, s) s d { $3:$1 }
+  | d { [$1] }
+
 Program:
-        TopDeclarationList { reverse $1 }
+        TopDeclarationList { $1 }
 
 --
 -- Types
@@ -136,9 +157,7 @@ Type:
         | UnionType     { $1 }
         | FunctionType  { $1 }
 
-TypeList:
-        Type { [$1] }
-        | TypeList "," Type { $1 ++ [$3] }
+TypeList: listNE(Type, ",") { reverse($1) }
 
 PrimitiveType:
         boolean { TBoolean }
@@ -154,11 +173,8 @@ PrimitiveType:
 ArrayType:
         array DimSpec of Type { TArray $2 $4 }
 DimSpec:
-        "[" DimSpec1 "]" { $2 }
+        "[" listNE("..", ",") "]" { length($2) }
         | { 1::Int }
-DimSpec1:
-        ".." { 1::Int }
-        | DimSpec1 "," ".." { $1 + 1 }
 
 -- Stream type
 StreamType:
@@ -166,17 +182,17 @@ StreamType:
 
 -- Record and union has common structure
 RecordType:
-        record "[" ListOfRecFields maybe(",") "]" { TRecord $3 }
+        record "[" ListOfRecFields maybe(",") "]" { TRecord (reverse $3) }
 UnionType:
         union "[" ListOfRecFields maybe(",") "]" { TUnion (reverse $3) }
+-- Causes shift-reduce conflicts
+-- ListOfRecFields: listNE(FieldGroup, ",") { reverse($1) }
 ListOfRecFields:
         FieldGroup { $1 }
         | ListOfRecFields "," FieldGroup { $1 ++ $3 }
 FieldGroup:
         IdentifierList ":" Type { zip $1 (repeat $3) }
-IdentifierList:
-        identifier { [$1] }
-        | IdentifierList "," identifier { $1++[$3] }
+IdentifierList: listNE(identifier, ",") { reverse($1) }
 
 -- Function type
 FunctionType:
@@ -185,19 +201,14 @@ FunctionType:
 --
 -- Top-level declarations: functions and type definitions
 -- 
-TopDeclarationList:
-        FunctionOrTypeDef { [$1] }
-        | TopDeclarationList FunctionOrTypeDef { $2:$1 }
+TopDeclarationList: listNE1(FunctionOrTypeDef) { reverse($1) }
 
 FunctionOrTypeDef:
         FunctionDecl { $1 }
         | TypeDecl   { $1 }
         | ForwardFunctionDecl { $1 }
 
-ExpressionList:
-        Expression { [$1] }
-        -- TODO: suboptimal
-        | ExpressionList "," Expression { $1 ++ [$3] }
+ExpressionList: listNE(Expression, ",") { reverse($1) }
 
 Expression:
         Constant { Constant $1 }
@@ -228,8 +239,10 @@ Expression:
 -- Just to keep Expression rule managable, we introduce CompaundExpression
 CompaundExpression:
         if IfConditions else ExpressionList end if { expandIfThen $2 $4 }
-        | let ListOfAssignments maybe(";") in ExpressionList end let { Let $2 $5 }
+        | let ListOfAssignments maybe(";") in ExpressionList end let { Let (reverse $2) $5 }
 
+-- Causes shift-reduce conflict
+-- ListOfAssignments: listNE(Assignment, ";") { reverse($1) }
 ListOfAssignments:
         Assignment { [$1] }
         | ListOfAssignments ";" Assignment { $1 ++ [$3] }
@@ -252,9 +265,7 @@ Constant:
 FunctionDecl:
         function identifier "(" ArgDecl returns TypeList  ")" ExpressionList end function { GFunctionDeclration $2 $4 $6 $8 }
 
-ArgDecl:  { [] }
-       | ArgsNType { $1 }
-       | ArgDecl ";" ArgsNType { $1 ++ $3 }
+ArgDecl: list(ArgsNType, ";") { reverse $ concat $1 }
 
 ArgsNType:
         IdentifierList ":" Type { zipWith (,) $1 (repeat $3) }
