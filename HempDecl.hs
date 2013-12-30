@@ -128,6 +128,7 @@ data Type = NamedType String
           | TRecord [(String, Type)]
           | TUnion [(String, Type)]
           | TFunction [Type] [Type]
+          | TTuple [Type]
           deriving (Show, Eq)
 
 data Expression = Constant Token

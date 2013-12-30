@@ -25,6 +25,8 @@ instance Inferrable RealTypes where
 instance Inferrable TFrac where
          commonSupertype a b = Just (max a b)
 
+instance Inferrable Type where
+  commonSupertype a b = Just a -- STUB
 
 -- Base type of primitive types, arrays and stream.
 -- For example, base type of array (or stream) of integer is integer.
@@ -37,6 +39,11 @@ baseArithType _ = Nothing
 numeric a = case a of
                  TNum _ -> True
                  otherwise -> False
+
+typeOf (TPair _ t) = t
+
+assertion True = Just True
+assertion False = Nothing
 
 -- Common types for arrays and primitive types
 congruentType :: Type -> Type -> Maybe Type
@@ -113,6 +120,21 @@ deduceTypes v (BinOp bc e1 e2) = deduceBinaryTypes v bc e1 e2
 deduceTypes v (Identifier n) =
       do t <- lookupVar n v
          return $ TPair (TVariable n) t
+
+deduceTypes v (IfThenElse cond thenBranch elseBranch) =
+  let thenBranch' = sequence $ map (deduceTypes v) thenBranch
+      elseBranch' = sequence $ map (deduceTypes v) elseBranch
+  in
+  do
+    tb' <- thenBranch'
+    eb' <- elseBranch'
+    _ <- assertion (length tb' == length eb')
+    common' <- sequence $ zipWith commonSupertype (map typeOf tb')
+                                                  (map typeOf eb')
+    cond'@(TPair _ ct) <- deduceTypes v cond
+    validCond <- commonSupertype (TPrimitive TBoolean) ct
+    return $ TPair (TIfThenElse cond' tb' eb')
+                   (TTuple common')
 
 -- create conversion node if type of pair is different from required type;
 -- if they match, just return the pair
