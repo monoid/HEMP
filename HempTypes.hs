@@ -128,7 +128,7 @@ deduceTypes v (IfThenElse cond thenBranch elseBranch) =
   do
     tb' <- thenBranch'
     eb' <- elseBranch'
-    _ <- assertion (length tb' == length eb')
+    assertion (length tb' == length eb')
     common' <- sequence $ zipWith commonSupertype (map typeOf tb')
                                                   (map typeOf eb')
     cond'@(TPair _ ct) <- deduceTypes v cond
