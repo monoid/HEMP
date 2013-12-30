@@ -112,8 +112,8 @@ import LLVM.Core
 --
 -- Optional trailing elements without value, like comma, semicolon etc.
 --
-maybe(c): c { 0 }
-        |   { 0 }
+maybe(c): c { Just $1 }
+  | { Nothing }
 
 --
 -- Optional lists.  d is the list itself, not element
@@ -281,8 +281,13 @@ ForBody: ListOfAssignments { $1 }
 -- STUB
 ReturnList: returns list1(LoopExpression) { $2 }
 
-LoopExpression: value of identifier Expression { ValueOf $3 $4 }
+LoopExpression: LoopExpression1 maybe(LoopCondition) { ($1, $2) }
+
+LoopExpression1: value of identifier Expression { ValueOf $3 $4 }
   | array of Expression { ArrayOf $3 }
+
+LoopCondition: unless Expression { (False, $2) }
+  | when Expression { (True, $2) }
 
 ----------------------------------------------------------------------
 --
