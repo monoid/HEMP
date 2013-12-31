@@ -122,17 +122,15 @@ deduceTypes v (Identifier n) =
          return $ TPair (TVariable n) t
 
 deduceTypes v (IfThenElse cond thenBranch elseBranch) =
-  let thenBranch' = sequence $ map (deduceTypes v) thenBranch
-      elseBranch' = sequence $ map (deduceTypes v) elseBranch
-  in
   do
-    tb' <- thenBranch'
-    eb' <- elseBranch'
+    tb' <- sequence $ map (deduceTypes v) thenBranch
+    eb' <- sequence $ map (deduceTypes v) elseBranch
     assertion (length tb' == length eb')
     common' <- sequence $ zipWith commonSupertype (map typeOf tb')
                                                   (map typeOf eb')
     cond'@(TPair _ ct) <- deduceTypes v cond
-    validCond <- commonSupertype (TPrimitive TBoolean) ct
+    -- Check that ct is boolean
+    assertion (TPrimitive TBoolean == ct)
     return $ TPair (TIfThenElse cond' tb' eb')
                    (TTuple common')
 
