@@ -131,7 +131,8 @@ deduceTypes v (IfThenElse cond thenBranch elseBranch) =
     cond'@(TPair _ ct) <- deduceTypes v cond
     -- Check that ct is boolean
     assertion (TPrimitive TBoolean == ct)
-    return $ TPair (TIfThenElse cond' tb' eb')
+    return $ TPair (TIfThenElse cond' (zipWith conv tb' common')
+                                      (zipWith conv eb' common'))
                    (TTuple common')
 
 -- create conversion node if type of pair is different from required type;
