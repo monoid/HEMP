@@ -94,7 +94,7 @@ data Token =
            LUnderscore
            deriving (Eq, Show)
 
-binop (LBin bc) a b = BinOp bc a b
+binop (LBin bc) = BinOp bc
 
 data GDeclration = GFunctionDeclration String [Argument] [Type] [Expression]
                  | GTypeDeclaration String Type
@@ -184,6 +184,9 @@ data TExp = TConstant Token
           -- Compound expressions
           | TSimpleIfThenElse TPair TPair TPair
           | TIfThenElse TPair [TPair] [TPair]
+          | TForSimple (ForRange TPair) [([String],[TPair])]
+                       [(LoopExpression TPair,
+                         Maybe (Bool, TPair))]
           | TLet [([String], [TPair])] [TPair]
           deriving (Show, Eq)
 

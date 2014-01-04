@@ -84,7 +84,7 @@ deduceBinaryTypes v op e1 e2 =
   do a1@(TPair e1' t1'@(TPrimitive t1)) <- deduceTypes v e1
      a2@(TPair e2' t2'@(TPrimitive t2)) <- deduceTypes v e2
      tc <- commonSupertype t1 t2 -- TODO: what if it is None
-     tc' <- return (TPrimitive tc)
+     let tc' = TPrimitive tc
      rt <- resultType op t1' t2'
      return (TPair (operation op e1 e2
                    (conv a1 tc')
@@ -123,17 +123,23 @@ deduceTypes v (Identifier n) =
 
 deduceTypes v (IfThenElse cond thenBranch elseBranch) =
   do
-    tb' <- sequence $ map (deduceTypes v) thenBranch
-    eb' <- sequence $ map (deduceTypes v) elseBranch
+    tb' <- mapM (deduceTypes v) thenBranch
+    eb' <- mapM (deduceTypes v) elseBranch
     assertion (length tb' == length eb')
-    common' <- sequence $ zipWith commonSupertype (map typeOf tb')
-                                                  (map typeOf eb')
+    common' <- zipWithM commonSupertype (map typeOf tb')
+                                        (map typeOf eb')
     cond'@(TPair _ ct) <- deduceTypes v cond
     -- Check that ct is boolean
     assertion (TPrimitive TBoolean == ct)
     return $ TPair (TIfThenElse cond' (zipWith conv tb' common')
                                       (zipWith conv eb' common'))
                    (TTuple common')
+
+deduceTypes v (ForLoop ranges body ret) =
+  -- допустимы ли float в range?  Нет, нет, ещё раз нет.
+  -- допустимы ли old в body?  Нет, т.к. нет начального значения
+  do
+    Nothing
 
 -- create conversion node if type of pair is different from required type;
 -- if they match, just return the pair
@@ -147,7 +153,7 @@ conv p t' = TPair (TConv p t') t'
 --
 -- Environment
 
-maybeOr :: (Maybe a) -> (Maybe a) -> (Maybe a)
+maybeOr :: Maybe a -> Maybe a -> Maybe a
 maybeOr Nothing y = y
 maybeOr x _ = x
 
