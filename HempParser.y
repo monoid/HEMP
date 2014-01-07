@@ -271,9 +271,9 @@ ForRangeDot:
   ForRange { $1 }
   | ForRange dot ForRange { ForRangeDot $1 $3 }
 
-ForRange: identifier in Expression "," Expression { ForInRange $1 $3 $5 }
-  | identifier in Expression { ForInArray $1 $3 }
-  | identifier in Expression at identifier { ForInArrayIndexed $1 $3 $5 }
+ForRange: identifier in Expression "," Expression { ForInRange ($1, ()) $3 $5 }
+  | identifier in Expression { ForInArray ($1, ()) $3 }
+  | identifier in Expression at identifier { ForInArrayIndexed ($1, ()) $3 ($5, ()) }
   | "(" ForRangeCross ")" { $2 }
 
 ForBody: ListOfAssignments { $1 }
@@ -283,8 +283,8 @@ ReturnList: returns list1(LoopExpression) { $2 }
 
 LoopExpression: LoopExpression1 maybe(LoopCondition) { ($1, $2) }
 
-LoopExpression1: value of identifier Expression { ValueOf $3 $4 }
-  | array of Expression { ArrayOf $3 }
+LoopExpression1: value of identifier Expression { ValueOf $3 () $4 }
+  | array of Expression { ArrayOf () $3 }
 
 LoopCondition: unless Expression { (False, $2) }
   | when Expression { (True, $2) }

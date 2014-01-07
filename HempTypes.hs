@@ -1,3 +1,4 @@
+{-# LANGUAGE FlexibleInstances #-}
 module HempTypes where
 import HempDecl
 import LLVM.Core
@@ -6,6 +7,9 @@ import Data.Maybe
 
 class Inferrable f where
       commonSupertype :: f -> f -> Maybe f
+
+class ExpWithType f where
+  typeOf :: f -> Type
 
 instance Inferrable TPrimitive where
          commonSupertype (TNum a) (TNum b) = liftM TNum (commonSupertype a b)
@@ -40,7 +44,12 @@ numeric a = case a of
                  TNum _ -> True
                  otherwise -> False
 
-typeOf (TPair _ t) = t
+instance ExpWithType TPair where
+  typeOf (TPair _ t) = t
+
+instance ExpWithType (LoopExpression Type TPair) where
+  typeOf (ArrayOf a _) = a
+  typeOf (ValueOf _ a _) = a
 
 assertion True = Just True
 assertion False = Nothing
@@ -139,7 +148,79 @@ deduceTypes v (ForLoop ranges body ret) =
   -- допустимы ли float в range?  Нет, нет, ещё раз нет.
   -- допустимы ли old в body?  Нет, т.к. нет начального значения
   do
-    Nothing
+    (v', range') <- deduceForRanges v ranges
+    (v'', body') <- deduceBody False v' body
+    ret' <- deduceRet v'' ret
+    return $ TPair (TForSimple range' body' ret')
+                   (TTuple $ map (typeOf . fst) ret')
+
+deduceForRanges :: Env -> ForRange () Expression -> Maybe (Env, ForRange Type TPair)
+
+deduceForRanges v (ForRangeCross r1 r2) =
+  do
+    (v', r1') <- deduceForRanges v r1
+    (v'', r2') <- deduceForRanges v' r2
+    return (v'', ForRangeCross r1' r2')
+
+deduceForRanges v (ForRangeDot r1 r2) =
+  do
+    (v', r1') <- deduceForRanges v r1
+    (v'', r2') <- deduceForRanges v' r2
+    return (v'', ForRangeDot r1' r2')
+
+deduceForRanges v (ForInRange (n,_) r1 r2) =
+  do
+    r1'@(TPair _ t1') <- deduceTypes v r1
+    r2'@(TPair _ t2') <- deduceTypes v r2
+    ct <- commonSupertype t1' t2'
+    return (Env (Just v) [(n, ct)],
+            ForInRange (n, ct) (conv r1' ct) (conv r2' ct))
+
+deduceForRanges v (ForInArray (n,_) r1) =
+  do
+    r1'@(TPair _ t1') <- deduceTypes v r1
+    at <- arrayType t1'
+    return (Env (Just v) [(n, at)],
+            ForInArray (n, at) r1')
+
+deduceForRanges v (ForInArrayIndexed (n,_) r1 (ni,_)) =
+  do
+    r1'@(TPair _ t1') <- deduceTypes v r1
+    at <- arrayType t1'
+    return (Env (Just v) [(n, at)],
+            ForInArrayIndexed (n, at) r1' (ni, TPrimitive (TNum (RealTypes TInteger))))
+
+deduceBody :: Bool -> Env -> [([String],[Expression])] -> Maybe (Env, [TPair])
+deduceBody False v =
+  foldM deduceAssignment (v,[])
+
+deduceAssignment :: (Env, [TPair]) -> ([String], [Expression]) -> Maybe (Env, [TPair])
+deduceAssignment (v,a') (vars, exprs) =
+  do
+    ep <- mapM (deduceTypes v) exprs
+    let types = map typeOf ep
+    vars' <- adjustVars vars types
+    let env' = Env (Just v) vars'
+    return (env', a' ++ ep)
+
+deduceRet v ret = Nothing
+
+adjustVars vars types =
+  do
+    let typeList = expandTuples types
+    assertion (length vars == length typeList)
+    return $ zip vars types
+
+expandTuples a = concat $ map expandTuple a
+
+expandTuple :: Type -> [Type]
+expandTuple (TTuple types) = types
+expandTuple t = [t]
+
+arrayType :: Type -> Maybe Type
+arrayType (TArray 1 t) = Just t
+arrayType (TArray n t) = Just $ TArray (n-1) t
+arrayType _ = Nothing
 
 -- create conversion node if type of pair is different from required type;
 -- if they match, just return the pair

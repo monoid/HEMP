@@ -146,22 +146,22 @@ data Expression = Constant Token
                 -- SISAL virtual 'tuples', and special type for these tuples.
                 -- Lists should be eliminated in IfThenElse, Let and loops.
                 | IfThenElse Expression [Expression] [Expression]
-                | ForLoop (ForRange Expression) [([String],[Expression])]
-                          [(LoopExpression Expression,
+                | ForLoop (ForRange () Expression) [([String],[Expression])]
+                          [(LoopExpression () Expression,
                             Maybe (Bool, Expression))]
                 | Let [([String], [Expression])] [Expression]
                 deriving (Show, Eq)
 
-data ForRange t = ForRangeCross (ForRange t) (ForRange t)
-                  | ForRangeDot (ForRange t) (ForRange t)
-                  | ForInRange String t t
-                  | ForInArray String t
-                  | ForInArrayIndexed String t String
+data ForRange a t = ForRangeCross (ForRange a t) (ForRange a t)
+                  | ForRangeDot (ForRange a t) (ForRange a t)
+                  | ForInRange (String, a) t t
+                  | ForInArray (String, a) t
+                  | ForInArrayIndexed (String, a) t (String, a)
                   deriving (Show, Eq)
 
-data LoopExpression t = ArrayOf t
-                      | ValueOf String t
-                      deriving (Show, Eq)
+data LoopExpression a t = ArrayOf a t
+                        | ValueOf String a t
+                        deriving (Show, Eq)
 
 -- Sequence of bindings (variable name and type information, inferred
 -- or declared) and, maybe, parent environment.
@@ -184,12 +184,12 @@ data TExp = TConstant Token
           -- Compound expressions
           | TSimpleIfThenElse TPair TPair TPair
           | TIfThenElse TPair [TPair] [TPair]
-          | TForSimple (ForRange TPair) [([String],[TPair])]
-                       [(LoopExpression TPair,
+          | TForSimple (ForRange Type TPair) [([String],[TPair])]
+                       [(LoopExpression Type TPair,
                          Maybe (Bool, TPair))]
           | TLet [([String], [TPair])] [TPair]
           deriving (Show, Eq)
 
 -- Expression with type
-data TPair = TPair TExp Type -- TODO: what is type of TIfThenElse?
+data TPair = TPair TExp Type
              deriving (Show, Eq)
