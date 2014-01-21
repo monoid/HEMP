@@ -244,7 +244,7 @@ CompaundExpression:
 
 ----------------------------------------------------------------------
 --
--- Compaund expressions
+-- Compound expressions
 --
 
 -- Causes shift-reduce conflict
