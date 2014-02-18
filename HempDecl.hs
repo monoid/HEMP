@@ -184,7 +184,7 @@ data TExp = TConstant Token
           -- Compound expressions
           | TSimpleIfThenElse TPair TPair TPair
           | TIfThenElse TPair [TPair] [TPair]
-          | TForSimple (ForRange Type TPair) [([String],[TPair])]
+          | TForSimple (ForRange Type TPair) [TPair]
                        [(LoopExpression Type TPair,
                          Maybe (Bool, TPair))]
           | TLet [([String], [TPair])] [TPair]
